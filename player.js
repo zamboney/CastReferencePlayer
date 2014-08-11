@@ -118,11 +118,17 @@ window.onload = function() {
 // you would only initialize the receiver code when you are actually on a
 // Chromecast device.
   if (!((userAgent.indexOf('CrKey') > -1) || (userAgent.indexOf('TV') > -1))) {
-	  window.player = new sampleplayer.CastPlayer(playerDiv);
+      window.player = new sampleplayer.CastPlayer(playerDiv);
   } else {
-	  window.castreceiver = cast.receiver.CastReceiverManager.getInstance();
-	  window.player = new sampleplayer.CastPlayer(playerDiv);
-	  window.castreceiver.start(window.castreceiver);
+      window.castreceiver = cast.receiver.CastReceiverManager.getInstance();
+      window.player = new sampleplayer.CastPlayer(playerDiv);
+      window.castreceiver.onSenderDisconnected = function(event) {
+          if(window.castreceiver.getSenders().length == 0 &&
+                  event.reason == cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
+              window.close();
+          }
+      }
+      window.castreceiver.start(window.castreceiver);
   }
 }
 
