@@ -317,7 +317,8 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
   console.log('onPause');
   if (this.state_ != sampleplayer.State.DONE) {
     this.setState_(sampleplayer.State.PAUSED, false);
-  }
+  };
+  this.updateProgress_();
 };
 
 
@@ -352,6 +353,14 @@ sampleplayer.CastPlayer.prototype.onEnded_ = function() {
  *
  */
 sampleplayer.CastPlayer.prototype.onProgress_ = function() {
+  this.updateProgress_();
+};
+
+/**
+ * Updates the current time and progress bar elements
+ *
+ */
+sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
   var curTime = this.mediaElement_.currentTime;
   var totalTime = this.mediaElement_.duration;
   if (!isNaN(curTime) && !isNaN(totalTime)) {
@@ -519,7 +528,7 @@ sampleplayer.setBackgroundImage_ = function(element, url) {
  * @return {string} the time (in HH:MM:SS)
  */
 sampleplayer.formatDuration_ = function(dur) {
-  function digit(n) { return ('00' + Math.floor(n)).slice(-2); }
+  function digit(n) { return ('00' + Math.round(n)).slice(-2); }
   var hr = Math.floor(dur / 3600);
   var min = Math.floor(dur / 60) % 60;
   var sec = dur % 60;
