@@ -14,30 +14,21 @@
  * limitations under the License.
 **/
 
-@import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700);
+/* NOTE: this must be first statement in file to work on device */
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400);
 
 /* ------------------------------------------------- */
 /* Animations                                        */
 /* ------------------------------------------------- */
 
 @-webkit-keyframes spin {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-  }
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
 }
 
 @-webkit-keyframes loading {
-  0% {
-    -webkit-transform: scaleX(0);
-    margin-left: -50px;
-  }
-  to {
-    -webkit-transform: scaleX(5);
-    margin-left: 120%;
-  }
+  0% { margin-left: -100%; }
+  100% { margin-left: 100%; }
 }
 
 /* ------------------------------------------------- */
@@ -49,6 +40,7 @@ body {
 }
 
 .player {
+  background-image: url("assets/background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -62,8 +54,27 @@ body {
   bottom: 0;
 }
 
-.player.idle, .player.done {
-  background-image: url('done.png');
+.player .logo {
+  display: none;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  background-image: url("assets/logo.png");
+  margin-top: -28px;
+  margin-left: -38px;
+  width: 76px;
+  height: 57px;
+}
+
+.player .gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
 }
 
 .player img, .player video {
@@ -77,236 +88,373 @@ body {
   background-repeat: no-repeat;
 }
 
-.player.image img, .player.video.buffering video, 
-.player.video.playing video, .player.video.paused video {
-  display: block;
+.player .media-info {
+  padding-bottom: 54px;
+  display: flex;
 }
 
-.player .overlay {
-  display: none;
-}
-
-.player.launching .overlay {
-  display: block;
-  position: absolute;
-  left: 96px;
-  right: 96px;
-  bottom: 96px;
-  top: 96px;
-}
-
-/* ------------------------------------------------- */
-/* Branding                                          */
-/* ------------------------------------------------- */
-
-.player .logo {
-  display: none;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: bottom;
-}
-
-.player.launching .logo {
-  display: block;
-  position: absolute;
-  bottom: 50%;
-  left: 50%;
-}
-
-.player:not(.launching)  .logo {
-  display: block;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  margin-bottom: 72px;
-}
-
-.player.video.playing .logo {
-  display: none;
-}
-
-/* ------------------------------------------------- */
-/* Media Info                                        */
-/* ------------------------------------------------- */
-
-.player.audio.buffering .overlay, .player.audio.loading .overlay,
-.player.audio.paused .overlay, .player.audio.playing .overlay,
-.player.audio.seeking .overlay, .player.video.buffering .overlay,
-.player.video.loading .overlay, .player.video.paused .overlay,
-.player.video.seeking .overlay {
-  display: block;
-  position: absolute;
-  left: 96px;
-  right: 96px;
-  bottom: 96px;
-}
-
-.player.video.buffering .media-artwork,
-.player.video.buffering .media-info,
-.player.video.paused .media-artwork,
-.player.video.paused .media-info,
-.player.video.seeking .media-artwork,
-.player.video.seeking .media-info {
-  display: none;
-}
 .player .media-artwork {
-  background-size: contain;
+  background-size: cover;
   background-position: bottom;
   background-repeat: no-repeat;
+  align-self: flex-end;
+  height: 143px;
+  margin-right: 32px;
+  min-width: 96px;
+}
+
+.player .media-text {
+  width: 100%;
+  align-self: flex-end;
 }
 
 .player .media-info .media-title {
-  color: #ddd;
-  line-height: 100%;
-  font-size: 66px;
-  padding: 5px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 44px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 80%;
 }
 
 .player .media-info .media-subtitle {
-  color: #999;
-  padding: 5px;
-  line-height: 100%;
-  font-size: 33px;
+  color: rgba(203, 203, 203, 0.8);
+  font-size: 22px;
+  overflow: hidden;
+  width: 80%;
 }
 
-.player.audio .media-artwork {
-  width: 576px;
-  height: 576px;
-}
-
-.player.video .media-artwork {
-  width: 144px;
-  height: 215px;
-  float: left;
-  margin-right: 20px;
-  margin-bottom: 64px;
-}
-
-.player.video .media-info {
-  display: table-cell;
-  height: 279px;
-  vertical-align: bottom;
-  padding-bottom: 64px;
-}
-
-.player.launching .controls, .player.launching .media-info,
-.player.launching .media-artwork {
-  display: none;
+.player .media-info .media-subtitle span:not(:first-child):before {
+  content: '\00B7';
+  padding-left: 10px;
+  padding-right: 10px;
+  font-weight: bold;
 }
 
 .player .controls {
-  height: 45px;
-}
-
-.player.audio .controls {
-  width: 576px;
-}
-
-.player.video .controls {
-  position: absolute;
+  display: none;
   bottom: 0;
-  width: 100%;
+  height: 30px;
+  left: 0;
+  position: absolute;
+  right: 0;
 }
 
 .player .controls-play-pause {
   background-size: cover;
   border: 0;
-  height: 44px;
-  width: 44px;
   float: left;
+  height: 36px;
+  margin-left: -4px;
+  margin-top: -3px;
+  width: 32px;
 }
 
-.player.buffering .controls-play-pause {
-  background-image: url("assets/buffering.png");
-  -webkit-animation: spin 1s infinite linear;
-}
-
-.player.paused .controls-play-pause {
-  background-image: url("assets/paused.png");
-}
-
-.player.playing .controls-play-pause {
+.player .overlay {
+  position: absolute;
+  left: 64px;
+  bottom: 64px;
+  right: 64px;
   display: none;
+  top: auto;
+}
+
+.player .watermark {
+  position: absolute;
+  top: 64px;
+  left: 64px;
+  bottom: 64px;
+  right: 64px; 
+  display: none;
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  margin-bottom: 54px;
+  background-image: url("assets/watermark.png");
+}
+
+.player .gradient {
+  display: none;
+  opacity: 0.9;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9),
+    rgba(0, 0, 0, 0.0) 72%,
+    rgba(0, 0, 0, 0.0) 100%
+  );
+}
+
+.player .progressBar {
+  background-color: rgb(250, 178, 49);
 }
 
 .player .controls-progress {
-  height: 12px;
-  background-color: rgba(255,255,255,0.2);
-  margin-top: 16px;
-  position: relative;
+  background-color: rgba(255, 255, 255, 0.2);
+  height: 8px;
+  margin-top: 11px;
+  margin-bottom: 11px;
   overflow: hidden;
+  position: relative;
 }
 
 .player .controls-progress-inner {
   height: 100%;
-  background-color: #3563ae;
+  opacity: 0.8;
 }
 
 .player .controls-progress-thumb {
   height: 100%;
-  width: 4px;
-  background-color: rgba(255,255,255,0.5);
+  width: 3px;
+  background-color: rgba(255, 255, 255, 0.5);
   position: absolute;
   top: 0;
   margin-left: -3px;
-  margin-top: -2px;
-  padding-bottom: 4px;
 }
 
-.player .controls-cur-time, .player .controls-total-time {
-  font-size: 24px;
-  line-height: 44px;
-  margin: 0 15px;
+.player .controls-cur-time,
+.player .controls-total-time {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .player .controls-cur-time {
   float: left;
+  line-height: 30px;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
 .player .controls-total-time {
   float: right;
+  line-height: 30px;
+  margin-left: 15px;
 }
 
-.player.audio .controls {
-  height: 12px;
-  margin: 5px 0 15px;
+/* ------------------------------------------------- */
+/* Launching                                         */
+/* ------------------------------------------------- */
+
+.player[state="launching"] .overlay {
+  display: block;
 }
 
-.player.audio .controls-progress {
-  margin-top: 0;
+.player[state="launching"] .logo {
+  display: block;
 }
 
-.player.audio .controls-cur-time, .player.audio .controls-total-time,
-.player.audio .controls-play-pause, .player.audio.loading .controls-progress-thumb,
-.player.video.loading .controls-cur-time, .player.video.loading .controls-total-time,
-.player.video.loading .controls-progress-thumb, .player.video.loading .controls-play-pause {
+.player[state="launching"] .controls,
+.player[state="launching"] .media-info,
+.player[state="launching"] .media-artwork {
   display: none;
 }
 
-.player.loading .controls-progress-inner {
-  width: 50px !important;
-  -webkit-animation: loading 1s infinite ease-in;
+.player[state="launching"] .spinner {
+  -webkit-animation: spin 1s infinite linear;
+  height: 36px;
+  width: 32px;
+  display: block;
+  position: absolute;
+  background-image: url("assets/buffering.png");
+  bottom: 64px;
+  left: 50%;
+  margin-left: 32px / -2;
 }
 
 /* ------------------------------------------------- */
-/* Skin                                              */
+/* Loading                                           */
 /* ------------------------------------------------- */
 
-.player {
-  background-image: url("assets/background.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+.player[state="loading"] .overlay,
+.player[state="loading"] .controls,
+.player[state="loading"] .watermark {
+  display: block;
 }
 
-.player.launching .logo {
-  background-image: url("assets/logo.png");
-  margin-top: -28px;
-  margin-left: -38px;
-  width: 76px;
-  height: 57px;
+.player[state="loading"] .controls-cur-time,
+.player[state="loading"] .controls-total-time,
+.player[state="loading"] .controls-progress-thumb,
+.player[state="loading"] .controls-play-pause {
+  display: none;
 }
 
-.player.playing .controls-cur-time {
+.player[state="loading"] .controls-progress-inner {
+  width: 90% !important;
+  -webkit-animation: loading 2s infinite linear;
+}
+
+/* ------------------------------------------------- */
+/* Buffering                                         */
+/* ------------------------------------------------- */
+
+.player[state="buffering"] .overlay,
+.player[state="buffering"] .gradient {
+  display: block;
+  visibility: visible;
+}
+
+.player[state="buffering"] .gradient {
+  opacity: 0.1;
+}
+
+.player[state="buffering"] .media-artwork,
+.player[state="buffering"] .media-info {
+  display: none;
+}
+
+.player[state="buffering"] .controls {
+  display: block;
+}
+
+.player[state="buffering"] .controls-play-pause {
+  background-image: url("assets/buffering.png");
+  -webkit-animation: spin 1s infinite linear;
+}
+
+.player[state="buffering"][live="true"] .controls-cur-time,
+.player[state="buffering"][live="true"] .controls-total-time,
+.player[state="buffering"][live="true"] .controls-progress {
+  display: none !important;
+}
+
+.player[state="buffering"] video {
+  display: block;
+}
+
+.player[state="buffering"] .media-info,
+.player[state="buffering"]:not(.seeking) .controls-cur-time,
+.player[state="buffering"]:not(.seeking) .controls-total-time,
+.player[state="buffering"]:not(.seeking) .controls-progress {
+  display: none;
+}
+
+/* ------------------------------------------------- */
+/* Paused                                            */
+/* ------------------------------------------------- */
+
+.player[state="paused"] .overlay,
+.player[state="paused"] .gradient,
+.player[state="paused"] .watermark {
+  display: block;
+  visibility: visible;
+}
+
+.player[state="paused"] .controls-play-pause {
+  background-image: url("assets/paused.png");
+}
+
+.player[state="paused"] .controls,
+.player[state="paused"] .watermark,
+.player[state="paused"]:not(.seeking) .controls-cur-time,
+.player[state="paused"]:not(.seeking) .controls-total-time,
+.player[state="paused"]:not(.seeking) .controls-progress {
+  display: block;
+}
+
+.player[state="paused"][live="true"] .controls-cur-time,
+.player[state="paused"][live="true"] .controls-total-time,
+.player[state="paused"][live="true"] .controls-progress {
+  display: none !important;
+}
+
+.player[state="paused"] video {
+  display: block;
+}
+
+.player[state="paused"]:not(.seeking) .controls-cur-time,
+.player[state="paused"]:not(.seeking) .controls-total-time,
+.player[state="paused"]:not(.seeking) .controls-progress {
+  opacity: 1;
+  -webkit-transition: opacity 1s linear 5s;
+}
+
+.player[state="paused"] .media-info {
+  opacity: 0;
+  -webkit-transition: opacity 1s linear 5s;
+}
+
+.player[state="paused"] .gradient {
+  opacity: 0.1;
+  -webkit-transition: opacity 1s linear 5s;
+}
+
+/* ------------------------------------------------- */
+/* Playing                                           */
+/* ------------------------------------------------- */
+
+.player[state="playing"] .overlay,
+.player[state="playing"] .gradient,
+.player[state="playing"] .watermark {
+  display: block;
+  visibility: hidden;
+}
+
+.player[state="playing"].seeking .overlay,
+.player[state="playing"].seeking .gradient {
+  visibility: visible;
+}
+
+.player[state="playing"].seeking .media-info {
+  display: none;
+}
+
+.player[state="playing"].seeking .controls {
+  display: block;
+}
+
+.player[state="playing"] .controls-play-pause {
+  background-image: url("assets/buffering.png");
+  -webkit-animation: spin 1s infinite linear;
+}
+
+.player[state="playing"]:not(.seeking) .controls-play-pause {
+  display: none;
+}
+
+.player[state="playing"]:not(.seeking) .controls-cur-time {
   margin-left: 0;
+}
+
+.player[state="playing"][live="true"] .controls-cur-time,
+.player[state="playing"][live="true"] .controls-total-time,
+.player[state="playing"][live="true"] .controls-progress {
+  display: none !important;
+}
+
+.player[state="playing"] video {
+  display: block;
+}
+
+/* ------------------------------------------------- */
+/* Stalled                                           */
+/* ------------------------------------------------- */
+
+.player[state="stalled"] .logo {
+  display: block;
+}
+
+/* ------------------------------------------------- */
+/* Idle                                              */
+/* ------------------------------------------------- */
+
+.player[state="idle"] .overlay {
+  display: none;
+}
+
+.player[state="idle"] .logo {
+  display: block;
+}
+
+.player[state="idle"] .spinner {
+  display: none;
+}
+/* ------------------------------------------------- */
+/* Done                                              */
+/* ------------------------------------------------- */
+
+.player[state="done"] .overlay {
+  display: none;
+}
+
+.player[state="done"] {
+  background-image: url('assets/done.png');
 }
