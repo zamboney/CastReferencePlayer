@@ -85,11 +85,6 @@ sampleplayer.CastPlayer = function(element) {
    * @private {Element}
    */
   this.element_ = element;
-  // We want to know when the user changes from watching our content to watching
-  // another element, such as broadcast TV, or another HDMI port.  This will only
-  // fire when CEC supports it in the TV.
-  this.element_.ownerDocument.addEventListener(
-      'webkitvisibilitychange', this.onVisibilityChange_.bind(this), false);
 
   /**
    * The current type of the player.
@@ -162,10 +157,6 @@ sampleplayer.CastPlayer = function(element) {
   this.mediaElement_ = /** @type {HTMLMediaElement} */
       (this.element_.querySelector('video'));
   this.mediaElement_.addEventListener('error', this.onError_.bind(this), false);
-  this.mediaElement_.addEventListener('stalled', this.onBuffering_.bind(this),
-      false);
-  this.mediaElement_.addEventListener('waiting', this.onBuffering_.bind(this),
-      false);
   this.mediaElement_.addEventListener('playing', this.onPlaying_.bind(this),
       false);
   this.mediaElement_.addEventListener('pause', this.onPause_.bind(this), false);
@@ -194,6 +185,8 @@ sampleplayer.CastPlayer = function(element) {
   this.receiverManager_.onReady = this.onReady_.bind(this);
   this.receiverManager_.onSenderDisconnected =
       this.onSenderDisconnected_.bind(this);
+  this.receiverManager_.onVisibilityChanged =
+      this.onVisibilityChanged_.bind(this);
   this.receiverManager_.setApplicationState(sampleplayer.getApplicationState_());
 
 
@@ -796,11 +789,14 @@ sampleplayer.CastPlayer.prototype.onSeekEnd_ = function() {
  * input has changed. If we were playing but no longer visible, pause
  * the currently playing media.
  *
+ * @see cast.receiver.CastReceiverManager#onVisibilityChanged
+ * @param {!cast.receiver.CastReceiverManager.VisibilityChangedEvent} event
+ *    Event fired when visibility of application is changed.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onVisibilityChange_ = function() {
-  this.log_('onVisibilityChange');
-  if (document.webkitHidden) {
+sampleplayer.CastPlayer.prototype.onVisibilityChanged_ = function(event) {
+  this.log_('onVisibilityChanged');
+  if (!event.isVisible) {
     this.mediaElement_.pause();
     this.mediaManager_.broadcastStatus(false);
   }
