@@ -671,6 +671,7 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
   var isDone = this.mediaElement_.currentTime == this.mediaElement_.duration;
   var isUnderflow = this.player_ && this.player_.getState()['underflow'];
   if (isUnderflow) {
+    this.log_('isUnderflow');
     this.setState_(sampleplayer.State.BUFFERING, false);
     this.mediaManager_.broadcastStatus(/* includeMedia */ false);
   } else if (!isIdle && !isDone) {
@@ -691,6 +692,7 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
  */
 sampleplayer.CastPlayer.prototype.customizedStatusCallback_ = function(
     mediaStatus) {
+  this.log_('customizedStatusCallback_: playerState=' + mediaStatus.playerState + ', this.state_=' + this.state_);
   // TODO: remove this workaround once MediaManager detects buffering immediately.
   if (mediaStatus.playerState == cast.receiver.media.PlayerState.PAUSED &&
       this.state_ == sampleplayer.State.BUFFERING) {
@@ -731,13 +733,14 @@ sampleplayer.CastPlayer.prototype.onEnded_ = function() {
 
 /**
  * Called periodically during playback, to notify changes in playback position.
- * We transition to PLAYING state, if we were in BUFFERING state.
+ * We transition to PLAYING state, if we were in BUFFERING or LOADING state.
  *
  * @private
  */
 sampleplayer.CastPlayer.prototype.onProgress_ = function() {
   // if we were previously buffering, update state to playing
-  if (this.state_ == sampleplayer.State.BUFFERING) {
+  if (this.state_ == sampleplayer.State.BUFFERING ||
+    this.state_ == sampleplayer.State.LOADING) {
     this.setState_(sampleplayer.State.PLAYING, false);
   }
   this.updateProgress_();
@@ -1025,7 +1028,6 @@ sampleplayer.addClassWithTimeout_ = function(element, className, timeout) {
   element.classList.add(className);
   return setTimeout(function() {
     element.classList.remove(className);
-     console.log("addClassWithTimeout_: remove " + className + " for " + timeout);
   }, timeout);
 };
 

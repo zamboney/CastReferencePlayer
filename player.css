@@ -390,6 +390,7 @@ body {
 
 .player[state="playing"].seeking .overlay,
 .player[state="playing"].seeking .gradient {
+  display: block;
   visibility: visible;
 }
 
