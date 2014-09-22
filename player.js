@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 /**
  * @fileoverview Receiver / Player sample
  * <p>
@@ -47,8 +47,12 @@
 'use strict';
 
 
-// Create the namespace
+/**
+ * Creates the namespace
+ */
 window.sampleplayer = window.sampleplayer || {};
+
+
 
 /**
  * <p>
@@ -74,11 +78,11 @@ sampleplayer.CastPlayer = function(element) {
    * The debug setting to control receiver, MPL and player logging.
    * @private {boolean}
    */
-   this.debug_ = sampleplayer.DISABLE_DEBUG;
-   if (this.debug_) {
-     cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
-     cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
-   }
+  this.debug_ = sampleplayer.DISABLE_DEBUG_;
+  if (this.debug_) {
+    cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
+    cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
+  }
 
   /**
    * The DOM element the player is attached.
@@ -90,14 +94,16 @@ sampleplayer.CastPlayer = function(element) {
    * The current type of the player.
    * @private {sampleplayer.Type}
    */
-   this.type_;
-   this.setType_(sampleplayer.Type.UNKNOWN, false);
+  this.type_;
+
+  this.setType_(sampleplayer.Type.UNKNOWN, false);
 
   /**
    * The current state of the player.
    * @private {sampleplayer.State}
    */
   this.state_;
+
   this.setState_(sampleplayer.State.LAUNCHING, false);
 
   /**
@@ -113,30 +119,24 @@ sampleplayer.CastPlayer = function(element) {
   this.progressBarInnerElement_ = this.element_.querySelector(
       '.controls-progress-inner');
 
- /**
-  * The DOM element for the thumb portion of the progress bar.
-  * @private {!Element}
-  */
+  /**
+   * The DOM element for the thumb portion of the progress bar.
+   * @private {!Element}
+   */
   this.progressBarThumbElement_ = this.element_.querySelector(
       '.controls-progress-thumb');
 
- /**
-  * The DOM element for the current time label.
-  * @private {!Element}
-  */
+  /**
+   * The DOM element for the current time label.
+   * @private {!Element}
+   */
   this.curTimeElement_ = this.element_.querySelector('.controls-cur-time');
 
- /**
-  * The DOM element for the total time label.
-  * @private {!Element}
-  */
-  this.totalTimeElement_ = this.element_.querySelector('.controls-total-time');
-
   /**
-   * Handler for buffering-related events for MediaElement.
-   * @private {function()}
+   * The DOM element for the total time label.
+   * @private {!Element}
    */
-  this.bufferingHandler_ = this.onBuffering_.bind(this);
+  this.totalTimeElement_ = this.element_.querySelector('.controls-total-time');
 
   /**
    * Handler to defer playback of media until enough data is pumped.
@@ -167,13 +167,13 @@ sampleplayer.CastPlayer = function(element) {
       false);
   this.mediaElement_.addEventListener('seeked', this.onSeekEnd_.bind(this),
       false);
-  this.mediaElement_.addEventListener('loadedmetadata', this.onLoadSuccess_.bind(this),
-      false);
+  this.mediaElement_.addEventListener('loadedmetadata',
+      this.onLoadSuccess_.bind(this), false);
 
- /**
-  * Id of autoplay timer.
-  * @private {?number}
-  */
+  /**
+   * Id of autoplay timer.
+   * @private {?number}
+   */
   this.playerAutoPlayTimerId_ = null;
 
 
@@ -187,7 +187,8 @@ sampleplayer.CastPlayer = function(element) {
       this.onSenderDisconnected_.bind(this);
   this.receiverManager_.onVisibilityChanged =
       this.onVisibilityChanged_.bind(this);
-  this.receiverManager_.setApplicationState(sampleplayer.getApplicationState_());
+  this.receiverManager_.setApplicationState(
+      sampleplayer.getApplicationState_());
 
 
   /**
@@ -245,6 +246,7 @@ sampleplayer.IDLE_TIMEOUT = {
   IDLE: 1000 * 60 * 5      // 5 minutes
 };
 
+
 /**
  * Describes the type of media being played.
  *
@@ -254,6 +256,7 @@ sampleplayer.Type = {
   VIDEO: 'video',
   UNKNOWN: 'unknown'
 };
+
 
 /**
  * Describes the state of the player.
@@ -271,12 +274,14 @@ sampleplayer.State = {
   IDLE: 'idle'
 };
 
+
 /**
  * The interval (in ms) of polling to check enough if data is pumped.
  *
  * @private {number}
  */
 sampleplayer.PUMP_POLLING_INTERVAL_ = 200;
+
 
 /**
  * The duration (in sec) of media to be pumped before playback starts.
@@ -285,6 +290,7 @@ sampleplayer.PUMP_POLLING_INTERVAL_ = 200;
  */
 sampleplayer.INITIAL_PUMP_DURATION_ = 5.0;
 
+
 /**
  * The minimum duration (in ms) that media is displayed.
  *
@@ -292,26 +298,29 @@ sampleplayer.INITIAL_PUMP_DURATION_ = 5.0;
  */
 sampleplayer.MEDIA_INFO_DURATION_ = 2 * 1000;
 
+
 /**
- * Transition animation duration (in ms).
+ * Transition animation duration (in sec).
  *
  * @private {number}
  */
 sampleplayer.TRANSITION_DURATION_ = 1.5;
+
 
 /**
  * Const to enable debugging.
  *
  * @private {boolean}
  */
-sampleplayer.ENABLE_DEBUG = true;
+sampleplayer.ENABLE_DEBUG_ = true;
+
 
 /**
  * Const to disable debugging.
  *
  * @private {boolean}
  */
-sampleplayer.DISABLE_DEBUG = false;
+sampleplayer.DISABLE_DEBUG_ = false;
 
 
 /**
@@ -359,11 +368,11 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
   var media = info.message.media || {};
   var contentType = media.contentType;
   var playerType = sampleplayer.getType_(media);
-  var isLiveStream = media.streamType == cast.receiver.media.StreamType.LIVE;
+  var isLiveStream = media.streamType === cast.receiver.media.StreamType.LIVE;
   if (!media.contentId) {
     this.log_('Load failed: no content');
     self.onLoadMetadataError_(info);
-  } else if (playerType == sampleplayer.Type.UNKNOWN) {
+  } else if (playerType === sampleplayer.Type.UNKNOWN) {
     this.log_('Load failed: unknown content type: ' + contentType);
     self.onLoadMetadataError_(info);
   } else {
@@ -378,13 +387,14 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
     }
 
     sampleplayer.preload_(media, function() {
-      sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function() {
-        self.setState_(sampleplayer.State.LOADING, false);
-        self.loadMetadata_(media);
-        if (deferredLoadFunc) {
-          deferredLoadFunc();
-        }
-      });
+      sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
+          function() {
+            self.setState_(sampleplayer.State.LOADING, false);
+            self.loadMetadata_(media);
+            if (deferredLoadFunc) {
+              deferredLoadFunc();
+            }
+          });
     });
   }
 };
@@ -439,28 +449,28 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
   var url = info.message.media.contentId;
   var type = info.message.media.contentType || '';
   var path = sampleplayer.getPath_(url);
-  if (sampleplayer.getExtension_(path) == 'm3u8' ||
-          type == 'application/x-mpegurl' ||
-          type == 'application/vnd.apple.mpegurl') {
+  if (sampleplayer.getExtension_(path) === 'm3u8' ||
+          type === 'application/x-mpegurl' ||
+          type === 'application/vnd.apple.mpegurl') {
     protocolFunc = cast.player.api.CreateHlsStreamingProtocol;
-  } else if (sampleplayer.getExtension_(path) == 'mpd' ||
-          type == 'application/dash+xml') {
+  } else if (sampleplayer.getExtension_(path) === 'mpd' ||
+          type === 'application/dash+xml') {
     protocolFunc = cast.player.api.CreateDashStreamingProtocol;
   } else if (path.indexOf('.ism') > -1 ||
-          type == 'application/vnd.ms-sstr+xml') {
+          type === 'application/vnd.ms-sstr+xml') {
     protocolFunc = cast.player.api.CreateSmoothStreamingProtocol;
   }
 
   if (!protocolFunc) {
     this.log_('loadVideo_: using MediaElement');
     this.mediaElement_.addEventListener('stalled', this.onBuffering_.bind(this),
-          false);
+        false);
     this.mediaElement_.addEventListener('waiting', this.onBuffering_.bind(this),
-          false);
+        false);
     this.onLoadOrig_(new cast.receiver.MediaManager.Event(
-      cast.receiver.MediaManager.EventType.LOAD,
-      /** @type {!cast.receiver.MediaManager.RequestData} */ (info.message),
-      info.senderId));
+        cast.receiver.MediaManager.EventType.LOAD,
+        /** @type {!cast.receiver.MediaManager.RequestData} */ (info.message),
+        info.senderId));
   } else {
     this.log_('loadVideo_: using Media Player Library');
     var host = new cast.player.api.Host({
@@ -483,7 +493,7 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
     // When MPL is used, player app should handle autoplay to make sure
     // that playback starts with enough data in buffer.
     this.mediaElement_.autoplay = false;
-    this.playerAutoPlay_ = autoplay == undefined ? true : autoplay;
+    this.playerAutoPlay_ = autoplay === undefined ? true : autoplay;
 
     this.player_ = new cast.player.api.Player(host);
     this.player_.load(protocolFunc(host));
@@ -516,9 +526,8 @@ sampleplayer.CastPlayer.prototype.setIdleTimeout_ = function(t) {
  * @param {boolean} isLiveStream whether player is showing live content
  * @private
  */
-sampleplayer.CastPlayer.prototype.setType_ = function(type, isLiveStream){
+sampleplayer.CastPlayer.prototype.setType_ = function(type, isLiveStream) {
   this.log_('setType_: ' + type);
-  var self = this;
   this.type_ = type;
   this.element_.setAttribute('type', type);
   this.element_.setAttribute('live', isLiveStream.toString());
@@ -529,27 +538,30 @@ sampleplayer.CastPlayer.prototype.setType_ = function(type, isLiveStream){
  * Sets the state of the player.
  *
  * @param {sampleplayer.State} state the new state of the player
- * @param {boolean=} crossfade true if should cross fade between states
- * @param {number=} delay the amount of time (in ms) to wait
+ * @param {boolean=} opt_crossfade true if should cross fade between states
+ * @param {number=} opt_delay the amount of time (in ms) to wait
  * @private
  */
-sampleplayer.CastPlayer.prototype.setState_ = function(state, crossfade, delay){
-  this.log_('setState_: state=' + state + ", crossfade=" + crossfade +", delay=" + delay);
+sampleplayer.CastPlayer.prototype.setState_ = function(
+    state, opt_crossfade, opt_delay) {
+  this.log_('setState_: state=' + state + ', crossfade=' + opt_crossfade +
+      ', delay=' + opt_delay);
   var self = this;
   clearTimeout(self.delay_);
-  if (delay) {
-    var func = function() { self.setState_(state, crossfade); };
-    self.delay_ = setTimeout(func, delay);
+  if (opt_delay) {
+    var func = function() { self.setState_(state, opt_crossfade); };
+    self.delay_ = setTimeout(func, opt_delay);
   } else {
-    if (!crossfade) {
+    if (!opt_crossfade) {
       self.state_ = state;
       self.element_.setAttribute('state', state);
       self.updateApplicationState_();
       self.setIdleTimeout_(sampleplayer.IDLE_TIMEOUT[state.toUpperCase()]);
     } else {
-      sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function() {
-        self.setState_(state, false);
-      });
+      sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
+          function() {
+            self.setState_(state, false);
+          });
     }
   }
 };
@@ -563,7 +575,7 @@ sampleplayer.CastPlayer.prototype.setState_ = function(state, crossfade, delay){
 sampleplayer.CastPlayer.prototype.updateApplicationState_ = function() {
   this.log_('updateApplicationState_');
   if (this.mediaManager_) {
-    var idle = this.state_ == sampleplayer.State.IDLE;
+    var idle = this.state_ === sampleplayer.State.IDLE;
     var media = idle ? null : this.mediaManager_.getMediaInformation();
     var applicationState = sampleplayer.getApplicationState_(media);
     if (this.applicationState_ != applicationState) {
@@ -596,9 +608,10 @@ sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(e) {
   this.log_('onSenderDisconnected');
   // When the last or only sender is connected to a receiver,
   // tapping Disconnect stops the app running on the receiver.
-  if(this.receiverManager_.getSenders().length == 0 &&
-      event.reason == cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
-      this.receiverManager_.stop();
+  if (this.receiverManager_.getSenders().length === 0 &&
+      event.reason ===
+          cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
+    this.receiverManager_.stop();
   }
 };
 
@@ -614,10 +627,11 @@ sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(e) {
 sampleplayer.CastPlayer.prototype.onError_ = function(error) {
   this.log_('onError');
   var self = this;
-  sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function() {
-    self.setState_(sampleplayer.State.IDLE, true);
-    self.onErrorOrig_(error);
-  });
+  sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
+      function() {
+        self.setState_(sampleplayer.State.IDLE, true);
+        self.onErrorOrig_(error);
+      });
 };
 
 
@@ -629,7 +643,7 @@ sampleplayer.CastPlayer.prototype.onError_ = function(error) {
  */
 sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
   this.log_('onBuffering[readyState=' + this.mediaElement_.readyState + ']');
-  if (this.state_ == sampleplayer.State.PLAYING &&
+  if (this.state_ === sampleplayer.State.PLAYING &&
       this.mediaElement_.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
     this.setState_(sampleplayer.State.BUFFERING, false);
   }
@@ -645,7 +659,7 @@ sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
 sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   this.log_('onPlaying');
   this.cancelPlayerAutoPlay_();
-  var isLoading = this.state_ == sampleplayer.State.LOADING;
+  var isLoading = this.state_ === sampleplayer.State.LOADING;
   this.setState_(sampleplayer.State.PLAYING, isLoading);
 };
 
@@ -660,8 +674,8 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
 sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.log_('onPause');
   this.cancelPlayerAutoPlay_();
-  var isIdle = this.state_ == sampleplayer.State.IDLE;
-  var isDone = this.mediaElement_.currentTime == this.mediaElement_.duration;
+  var isIdle = this.state_ === sampleplayer.State.IDLE;
+  var isDone = this.mediaElement_.currentTime === this.mediaElement_.duration;
   var isUnderflow = this.player_ && this.player_.getState()['underflow'];
   if (isUnderflow) {
     this.log_('isUnderflow');
@@ -685,10 +699,12 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
  */
 sampleplayer.CastPlayer.prototype.customizedStatusCallback_ = function(
     mediaStatus) {
-  this.log_('customizedStatusCallback_: playerState=' + mediaStatus.playerState + ', this.state_=' + this.state_);
-  // TODO: remove this workaround once MediaManager detects buffering immediately.
-  if (mediaStatus.playerState == cast.receiver.media.PlayerState.PAUSED &&
-      this.state_ == sampleplayer.State.BUFFERING) {
+  this.log_('customizedStatusCallback_: playerState=' +
+      mediaStatus.playerState + ', this.state_=' + this.state_);
+  // TODO: remove this workaround once MediaManager detects buffering
+  // immediately.
+  if (mediaStatus.playerState === cast.receiver.media.PlayerState.PAUSED &&
+      this.state_ === sampleplayer.State.BUFFERING) {
     mediaStatus.playerState = cast.receiver.media.PlayerState.BUFFERING;
   }
   return mediaStatus;
@@ -706,10 +722,11 @@ sampleplayer.CastPlayer.prototype.onStop_ = function(event) {
   this.log_('onStop');
   this.cancelPlayerAutoPlay_();
   var self = this;
-  sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function() {
-    self.setState_(sampleplayer.State.IDLE, false);
-    self.onStopOrig_(event);
-  });
+  sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
+      function() {
+        self.setState_(sampleplayer.State.IDLE, false);
+        self.onStopOrig_(event);
+      });
 };
 
 
@@ -732,8 +749,8 @@ sampleplayer.CastPlayer.prototype.onEnded_ = function() {
  */
 sampleplayer.CastPlayer.prototype.onProgress_ = function() {
   // if we were previously buffering, update state to playing
-  if (this.state_ == sampleplayer.State.BUFFERING ||
-    this.state_ == sampleplayer.State.LOADING) {
+  if (this.state_ === sampleplayer.State.BUFFERING ||
+      this.state_ === sampleplayer.State.LOADING) {
     this.setState_(sampleplayer.State.PLAYING, false);
   }
   this.updateProgress_();
@@ -831,10 +848,11 @@ sampleplayer.CastPlayer.prototype.onLoad_ = function(event) {
 sampleplayer.CastPlayer.prototype.onLoadMetadataError_ = function(event) {
   this.log_('onLoadMetadataError_');
   var self = this;
-  sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function() {
-    self.setState_(sampleplayer.State.IDLE, true);
-    self.onLoadMetadataErrorOrig_(event);
-  });
+  sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
+      function() {
+        self.setState_(sampleplayer.State.IDLE, true);
+        self.onLoadMetadataErrorOrig_(event);
+      });
 };
 
 
@@ -911,7 +929,8 @@ sampleplayer.CastPlayer.prototype.onLoadSuccess_ = function() {
   // and progress bar
   var totalTime = this.mediaElement_.duration;
   if (!isNaN(totalTime)) {
-    this.totalTimeElement_.textContent = sampleplayer.formatDuration_(totalTime);
+    this.totalTimeElement_.textContent =
+        sampleplayer.formatDuration_(totalTime);
   } else {
     this.totalTimeElement_.textContent = '';
     this.progressBarInnerElement_.style.width = '100%';
@@ -961,27 +980,27 @@ sampleplayer.getType_ = function(media) {
   var contentId = media.contentId || '';
   var contentType = media.contentType || '';
   var contentUrlPath = sampleplayer.getPath_(contentId);
-  if (contentType.indexOf('video/') == 0) {
+  if (contentType.indexOf('video/') === 0) {
     return sampleplayer.Type.VIDEO;
-  } else if (contentType.indexOf('application/x-mpegurl') == 0) {
+  } else if (contentType.indexOf('application/x-mpegurl') === 0) {
     return sampleplayer.Type.VIDEO;
-  } else if (contentType.indexOf('application/vnd.apple.mpegurl') == 0) {
+  } else if (contentType.indexOf('application/vnd.apple.mpegurl') === 0) {
     return sampleplayer.Type.VIDEO;
-  } else if (contentType.indexOf('application/dash+xml') == 0) {
+  } else if (contentType.indexOf('application/dash+xml') === 0) {
     return sampleplayer.Type.VIDEO;
-  } else if (contentType.indexOf('application/vnd.ms-sstr+xml') == 0) {
+  } else if (contentType.indexOf('application/vnd.ms-sstr+xml') === 0) {
     return sampleplayer.Type.VIDEO;
-  } else if (sampleplayer.getExtension_(contentUrlPath) == "m3u8") {
+  } else if (sampleplayer.getExtension_(contentUrlPath) === 'm3u8') {
     return sampleplayer.Type.VIDEO;
-  } else if (sampleplayer.getExtension_(contentUrlPath) == "mp4") {
+  } else if (sampleplayer.getExtension_(contentUrlPath) === 'mp4') {
     return sampleplayer.Type.VIDEO;
-  } else if (sampleplayer.getExtension_(contentUrlPath) == "ogv") {
+  } else if (sampleplayer.getExtension_(contentUrlPath) === 'ogv') {
     return sampleplayer.Type.VIDEO;
-  } else if (sampleplayer.getExtension_(contentUrlPath) == "webm") {
+  } else if (sampleplayer.getExtension_(contentUrlPath) === 'webm') {
     return sampleplayer.Type.VIDEO;
-  } else if (sampleplayer.getExtension_(contentUrlPath) == "m3u8") {
+  } else if (sampleplayer.getExtension_(contentUrlPath) === 'm3u8') {
     return sampleplayer.Type.VIDEO;
-  } else if (sampleplayer.getExtension_(contentUrlPath) == "mpd") {
+  } else if (sampleplayer.getExtension_(contentUrlPath) === 'mpd') {
     return sampleplayer.Type.VIDEO;
   }
   return sampleplayer.Type.UNKNOWN;
@@ -1064,11 +1083,11 @@ sampleplayer.preload_ = function(media, doneFunc) {
   // try to preload image content
   var contentId = media.contentId;
   var playerType = sampleplayer.getType_(media);
-  if (contentId && playerType == sampleplayer.Type.IMAGE) {
+  if (contentId && playerType === sampleplayer.Type.IMAGE) {
     imagesToPreload.push(contentId);
   }
 
-  if (imagesToPreload.length == 0) {
+  if (imagesToPreload.length === 0) {
     doneFunc();
   } else {
     var counter = 0;
@@ -1077,7 +1096,7 @@ sampleplayer.preload_ = function(media, doneFunc) {
       images[i] = new Image();
       images[i].src = imagesToPreload[i];
       images[i].onload = function() {
-        if (++counter == imagesToPreload.length) {
+        if (++counter === imagesToPreload.length) {
           doneFunc();
         }
       };
@@ -1091,11 +1110,11 @@ sampleplayer.preload_ = function(media, doneFunc) {
  *
  * @param {!Element} element The element to fade in.
  * @param {number} time The amount of time (in seconds) to transition.
- * @param {function()=} doneFunc The function to call when complete.
+ * @param {function()=} opt_doneFunc The function to call when complete.
  * @private
  */
-sampleplayer.fadeIn_ = function(element, time, doneFunc) {
-  sampleplayer.fadeTo_(element, '', time, doneFunc);
+sampleplayer.fadeIn_ = function(element, time, opt_doneFunc) {
+  sampleplayer.fadeTo_(element, '', time, opt_doneFunc);
 };
 
 
@@ -1104,11 +1123,11 @@ sampleplayer.fadeIn_ = function(element, time, doneFunc) {
  *
  * @param {!Element} element The element to fade out.
  * @param {number} time The amount of time (in seconds) to transition.
- * @param {function()=} doneFunc The function to call when complete.
+ * @param {function()=} opt_doneFunc The function to call when complete.
  * @private
  */
-sampleplayer.fadeOut_ = function(element, time, doneFunc) {
-  sampleplayer.fadeTo_(element, 0, time, doneFunc);
+sampleplayer.fadeOut_ = function(element, time, opt_doneFunc) {
+  sampleplayer.fadeTo_(element, 0, time, opt_doneFunc);
 };
 
 
@@ -1119,15 +1138,15 @@ sampleplayer.fadeOut_ = function(element, time, doneFunc) {
  * @param {!Element} element The element to fade in/out.
  * @param {string|number} opacity The opacity to transition to.
  * @param {number} time The amount of time (in seconds) to transition.
- * @param {function()=} doneFunc The function to call when complete.
+ * @param {function()=} opt_doneFunc The function to call when complete.
  * @private
  */
-sampleplayer.fadeTo_ = function(element, opacity, time, doneFunc) {
+sampleplayer.fadeTo_ = function(element, opacity, time, opt_doneFunc) {
   var listener = function() {
     element.style.webkitTransition = '';
     element.removeEventListener('webkitTransitionEnd', listener, false);
-    if (doneFunc) {
-      doneFunc();
+    if (opt_doneFunc) {
+      opt_doneFunc();
     }
   };
   element.addEventListener('webkitTransitionEnd', listener, false);
@@ -1156,17 +1175,18 @@ sampleplayer.getExtension_ = function(url) {
 /**
  * Returns the application state.
  *
- * @param {cast.receiver.media.MediaInformation} media The current media metadata
+ * @param {cast.receiver.media.MediaInformation} media The current media
+ *     metadata
  * @return {string} The application state.
  * @private
  */
 sampleplayer.getApplicationState_ = function(media) {
   if (media && media.metadata && media.metadata.title) {
-    return "Now Casting: " + media.metadata.title;
+    return 'Now Casting: ' + media.metadata.title;
   } else if (media) {
-    return "Now Casting";
+    return 'Now Casting';
   } else {
-    return "Ready To Cast";
+    return 'Ready To Cast';
   }
 };
 
@@ -1179,10 +1199,10 @@ sampleplayer.getApplicationState_ = function(media) {
  * @private
  */
 sampleplayer.getPath_ = function(url) {
-    var href = document.createElement('a');
-    href.href = url;
-    return href.pathname || '';
-}
+  var href = document.createElement('a');
+  href.href = url;
+  return href.pathname || '';
+};
 
 
 /**
@@ -1192,31 +1212,9 @@ sampleplayer.getPath_ = function(url) {
  * @private
  */
 sampleplayer.CastPlayer.prototype.log_ = function(message) {
-    if (this.debug_ && message) {
-      console.log(message);
-    }
-};
-
-
-/**
- * Get a value from an object multiple levels deep.
- *
- * @param {Object} obj The object.
- * @param {Array} keys The keys keys.
- * @returns {R} the value of the property with the given keys
- * @template R
- * @private
- */
-sampleplayer.getValue_ = function(obj, keys) {
-  for (var i = 0; i < keys.length; i++) {
-    if (obj === null || obj === undefined) {
-    // default to an empty string
-      return '';
-    } else {
-      obj = obj[keys[i]];
-    }
+  if (this.debug_ && message) {
+    console.log(message);
   }
-  return obj;
 };
 
 
