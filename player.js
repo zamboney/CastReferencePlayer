@@ -50,7 +50,7 @@
 /**
  * Creates the namespace
  */
-window.sampleplayer = window.sampleplayer || {};
+var sampleplayer = sampleplayer || {};
 
 
 
@@ -68,7 +68,7 @@ window.sampleplayer = window.sampleplayer || {};
  * <li>Create the MediaManager and bind to onLoad & onStop</li>
  * </ol>
  *
- * @param {Element} element the element to attach the player
+ * @param {!Element} element the element to attach the player
  * @constructor
  * @export
  */
@@ -86,7 +86,7 @@ sampleplayer.CastPlayer = function(element) {
 
   /**
    * The DOM element the player is attached.
-   * @private {Element}
+   * @private {!Element}
    */
   this.element_ = element;
 
@@ -116,27 +116,27 @@ sampleplayer.CastPlayer = function(element) {
    * The DOM element for the inner portion of the progress bar.
    * @private {!Element}
    */
-  this.progressBarInnerElement_ = this.element_.querySelector(
+  this.progressBarInnerElement_ = this.getElementByClass_(
       '.controls-progress-inner');
 
   /**
    * The DOM element for the thumb portion of the progress bar.
    * @private {!Element}
    */
-  this.progressBarThumbElement_ = this.element_.querySelector(
+  this.progressBarThumbElement_ = this.getElementByClass_(
       '.controls-progress-thumb');
 
   /**
    * The DOM element for the current time label.
    * @private {!Element}
    */
-  this.curTimeElement_ = this.element_.querySelector('.controls-cur-time');
+  this.curTimeElement_ = this.getElementByClass_('.controls-cur-time');
 
   /**
    * The DOM element for the total time label.
    * @private {!Element}
    */
-  this.totalTimeElement_ = this.element_.querySelector('.controls-total-time');
+  this.totalTimeElement_ = this.getElementByClass_('.controls-total-time');
 
   /**
    * Handler to defer playback of media until enough data is pumped.
@@ -278,7 +278,7 @@ sampleplayer.State = {
 /**
  * The interval (in ms) of polling to check enough if data is pumped.
  *
- * @private {number}
+ * @const @private {number}
  */
 sampleplayer.PUMP_POLLING_INTERVAL_ = 200;
 
@@ -286,7 +286,7 @@ sampleplayer.PUMP_POLLING_INTERVAL_ = 200;
 /**
  * The duration (in sec) of media to be pumped before playback starts.
  *
- * @private {number}
+ * @const @private {number}
  */
 sampleplayer.INITIAL_PUMP_DURATION_ = 5.0;
 
@@ -294,7 +294,7 @@ sampleplayer.INITIAL_PUMP_DURATION_ = 5.0;
 /**
  * The minimum duration (in ms) that media is displayed.
  *
- * @private {number}
+ * @const @private {number}
  */
 sampleplayer.MEDIA_INFO_DURATION_ = 2 * 1000;
 
@@ -302,7 +302,7 @@ sampleplayer.MEDIA_INFO_DURATION_ = 2 * 1000;
 /**
  * Transition animation duration (in sec).
  *
- * @private {number}
+ * @const @private {number}
  */
 sampleplayer.TRANSITION_DURATION_ = 1.5;
 
@@ -310,7 +310,7 @@ sampleplayer.TRANSITION_DURATION_ = 1.5;
 /**
  * Const to enable debugging.
  *
- * @private {boolean}
+ * @const @private {boolean}
  */
 sampleplayer.ENABLE_DEBUG_ = true;
 
@@ -318,9 +318,27 @@ sampleplayer.ENABLE_DEBUG_ = true;
 /**
  * Const to disable debugging.
  *
- * @private {boolean}
+ * #@const @private {boolean}
  */
 sampleplayer.DISABLE_DEBUG_ = false;
+
+
+/**
+ * Returns the element with the given class name
+ *
+ * @param {string} className The class name of the element to return.
+ * @return {!Element}
+ * @throws {Error} If given class cannot be found.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.getElementByClass_ = function(className) {
+  var element = this.element_.querySelector(className);
+  if (element) {
+    return element;
+  } else {
+    throw Error('Cannot find element with class: ' + className);
+  }
+};
 
 
 /**
@@ -427,7 +445,7 @@ sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
   sampleplayer.setInnerText_(titleElement, metadata.title);
 
   var subtitleElement = this.element_.querySelector('.media-subtitle');
-  sampleplayer.setInnerText_(subtitleElement, metadata.subtitle);
+  sampleplayer.setInnerText_(subtitleElement, metadata['subtitle']);
 
   var artwork = sampleplayer.getMediaImageUrl_(media);
   var artworkElement = this.element_.querySelector('.media-artwork');
@@ -601,10 +619,10 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
 /**
  * Called when a sender disconnects from the app.
  *
- * @param {cast.receiver.CastReceiverManager.SenderDisconnectedEvent} e
+ * @param {cast.receiver.CastReceiverManager.SenderDisconnectedEvent} event
  * @private
  */
-sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(e) {
+sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   this.log_('onSenderDisconnected');
   // When the last or only sender is connected to a receiver,
   // tapping Disconnect stops the app running on the receiver.
@@ -973,7 +991,7 @@ sampleplayer.getMediaImageUrl_ = function(media) {
  * to file extension if not set.
  *
  * @param {!cast.receiver.media.MediaInformation} media The media.
- * @return {castplayer.CastPlayer.Type} The player type.
+ * @return {sampleplayer.Type} The player type.
  * @private
  */
 sampleplayer.getType_ = function(media) {
@@ -1080,13 +1098,6 @@ sampleplayer.preload_ = function(media, doneFunc) {
     imagesToPreload.push(thumbnailUrl);
   }
 
-  // try to preload image content
-  var contentId = media.contentId;
-  var playerType = sampleplayer.getType_(media);
-  if (contentId && playerType === sampleplayer.Type.IMAGE) {
-    imagesToPreload.push(contentId);
-  }
-
   if (imagesToPreload.length === 0) {
     doneFunc();
   } else {
@@ -1175,15 +1186,15 @@ sampleplayer.getExtension_ = function(url) {
 /**
  * Returns the application state.
  *
- * @param {cast.receiver.media.MediaInformation} media The current media
+ * @param {cast.receiver.media.MediaInformation=} opt_media The current media
  *     metadata
  * @return {string} The application state.
  * @private
  */
-sampleplayer.getApplicationState_ = function(media) {
-  if (media && media.metadata && media.metadata.title) {
-    return 'Now Casting: ' + media.metadata.title;
-  } else if (media) {
+sampleplayer.getApplicationState_ = function(opt_media) {
+  if (opt_media && opt_media.metadata && opt_media.metadata.title) {
+    return 'Now Casting: ' + opt_media.metadata.title;
+  } else if (opt_media) {
     return 'Now Casting';
   } else {
     return 'Ready To Cast';
@@ -1222,11 +1233,14 @@ sampleplayer.CastPlayer.prototype.log_ = function(message) {
  * Sets the inner text for the given element.
  *
  * @param {Element} element The element.
- * @param {string} text The text.
+ * @param {string=} opt_text The text.
  * @private
  */
-sampleplayer.setInnerText_ = function(element, text) {
-  element.innerText = text || '';
+sampleplayer.setInnerText_ = function(element, opt_text) {
+  if (!element) {
+    return;
+  }
+  element.innerText = opt_text || '';
 };
 
 
@@ -1234,10 +1248,13 @@ sampleplayer.setInnerText_ = function(element, text) {
  * Sets the background image for the given element.
  *
  * @param {Element} element The element.
- * @param {string} url The image url.
+ * @param {string=} opt_url The image url.
  * @private
  */
-sampleplayer.setBackgroundImage_ = function(element, url) {
-  element.style.backgroundImage = (url ? 'url("' + url + '")' : 'none');
-  element.style.display = (url ? '' : 'none');
+sampleplayer.setBackgroundImage_ = function(element, opt_url) {
+  if (!element) {
+    return;
+  }
+  element.style.backgroundImage = (opt_url ? 'url("' + opt_url + '")' : 'none');
+  element.style.display = (opt_url ? '' : 'none');
 };
