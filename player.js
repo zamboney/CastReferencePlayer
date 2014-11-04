@@ -403,12 +403,11 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
         self.loadVideo_(info);
         break;
     }
-
+    self.loadMetadata_(media);
     sampleplayer.preload_(media, function() {
       sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
           function() {
             self.setState_(sampleplayer.State.LOADING, false);
-            self.loadMetadata_(media);
             if (deferredLoadFunc) {
               deferredLoadFunc();
             }
@@ -454,6 +453,22 @@ sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
 
 
 /**
+ * Lets player handle autoplay, instead of depending on underlying
+ * MediaElement to handle it. By this way, we can make sure that media playback
+ * starts after loading screen is displayed.
+ *
+ * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.letPlayerHandleAutoPlay_ = function(info) {
+  var autoplay = info.message.autoplay;
+  info.message.autoplay = false;
+  this.mediaElement_.autoplay = false;
+  this.playerAutoPlay_ = autoplay == undefined ? true : autoplay;
+};
+
+
+/**
  * Loads some video content.
  *
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
@@ -463,7 +478,6 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
   this.log_('loadVideo_');
   var self = this;
   var protocolFunc = null;
-  var autoplay = info.message.autoplay;
   var url = info.message.media.contentId;
   var type = info.message.media.contentType || '';
   var path = sampleplayer.getPath_(url);
@@ -478,6 +492,8 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
           type === 'application/vnd.ms-sstr+xml') {
     protocolFunc = cast.player.api.CreateSmoothStreamingProtocol;
   }
+
+  this.letPlayerHandleAutoPlay_(info);
 
   if (!protocolFunc) {
     this.log_('loadVideo_: using MediaElement');
@@ -507,11 +523,6 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
     // getState()['underflow]'
     this.mediaElement_.removeEventListener('stalled', this.onBuffering_);
     this.mediaElement_.removeEventListener('waiting', this.onBuffering_);
-
-    // When MPL is used, player app should handle autoplay to make sure
-    // that playback starts with enough data in buffer.
-    this.mediaElement_.autoplay = false;
-    this.playerAutoPlay_ = autoplay === undefined ? true : autoplay;
 
     this.player_ = new cast.player.api.Player(host);
     this.player_.load(protocolFunc(host));
@@ -956,11 +967,12 @@ sampleplayer.CastPlayer.prototype.onLoadSuccess_ = function() {
   }
 
   // if we were set to autoplay, delay playback by a short amount of time
-  if (this.player_ && this.playerAutoPlay_) {
+  if (this.playerAutoPlay_) {
     // Make sure media info displayed long enough before playback starts.
     var self = this;
     setTimeout(function() {
-      if (!isNaN(totalTime) &&
+      if (this.player_ &&
+          !isNaN(totalTime) &&
           totalTime > sampleplayer.INITIAL_PUMP_DURATION_) {
         self.doPlayerAutoPlay_();
       } else {
