@@ -4,8 +4,8 @@ This sample shows how to develop a fully UX compliant receiver.
 
 ## Setup Instructions
 * Get a Chromecast device
-* Upload the receiver.html to a website that can be accessed from your Chromecast. Later, when you publish your application, you will need to host so that it is accessible using HTTPS.
-* Register an application on the Developers Console (http://cast.google.com/publish). Enter the URL for your receiver application. There is a button marked publish, if you set that, then your receiver can be accessed by all devices, but it requires that you be serving using https.  Not publishing your app, lets you restrict the receiver to devices that you specify and allows you to host on most development servers.
+* Upload the project to a website that can be accessed from your Chromecast. Later, when you publish your application, you will need to host so that it is accessible using HTTPS.
+* Register an application on the Developers Console (http://cast.google.com/publish). Enter the URL for the player.html. There is a button marked publish, if you set that, then your receiver can be accessed by all devices, but it requires that you be serving using https.  Not publishing your app, lets you restrict the receiver to devices that you specify and allows you to host on most development servers.
 * If you haven't already done so, please register the serial # of your Chromecast device in the developer console as well.
 * Using the Chromecast setup application, make sure [x] send your serial number to Google is checked.  This is the only way that you can access your unpublished receiver.  While you are in the Setup application, make a note of the IP address of your Chromecast. It will be helpful later if you wish to use the Chrome Remote Debugger.
 * 15 minutes after you have updated the developers console, you should reboot your Chromecast, so that it picks up the changes.
