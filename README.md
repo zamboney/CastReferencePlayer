@@ -1,6 +1,13 @@
-# Cast-Player-Sample
+# Cast-Player-Sample (reference receiver app)
 
-This sample shows how to develop a fully UX compliant receiver.
+This sample shows how to develop a fully Cast Design Checklist compliant receiver.
+
+**This is a reference receiver app to be used as the starting point for your custom receiver**
+
+Here is the list of other reference apps:
+* [Android Sender: CastVideos-android](https://github.com/googlecast/CastVideos-android)
+* [iOS Sender: CastVideos-ios](https://github.com/googlecast/CastVideos-ios)
+* [Chrome Sender: CastVideos-chrome](https://github.com/googlecast/CastVideos-chrome)
 
 ## Setup Instructions
 * Get a Chromecast device
