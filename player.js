@@ -139,16 +139,28 @@ sampleplayer.CastPlayer = function(element) {
   this.totalTimeElement_ = this.getElementByClass_('.controls-total-time');
 
   /**
-   * Handler to defer playback of media until enough data is pumped.
-   * @private {function()}
+   * Streaming protocol.
+   * @private {player.StreamingProtocol}
    */
-  this.playerAutoPlayHandler_ = this.doPlayerAutoPlay_.bind(this);
+  this.protocol_ = null;
+
+  /**
+   * Text Tracks currently supported.
+   * @private {?sampleplayer.TextTrackType}
+   */
+  this.textTrackType_ = null;
 
   /**
    * Whether player app should handle autoplay behavior.
    * @private {boolean}
    */
   this.playerAutoPlay_ = false;
+
+  /**
+   * Id of deferred play callback
+   * @private {?number}
+   */
+  this.deferredPlayCallbackId_ = null;
 
   /**
    * The media element.
@@ -167,14 +179,6 @@ sampleplayer.CastPlayer = function(element) {
       false);
   this.mediaElement_.addEventListener('seeked', this.onSeekEnd_.bind(this),
       false);
-  this.mediaElement_.addEventListener('loadedmetadata',
-      this.onLoadSuccess_.bind(this), false);
-
-  /**
-   * Id of autoplay timer.
-   * @private {?number}
-   */
-  this.playerAutoPlayTimerId_ = null;
 
 
   /**
@@ -204,6 +208,22 @@ sampleplayer.CastPlayer = function(element) {
   this.onLoadOrig_ =
       this.mediaManager_.onLoad.bind(this.mediaManager_);
   this.mediaManager_.onLoad = this.onLoad_.bind(this);
+
+  /**
+   * The original editTracksInfo callback
+   * @private {?function(!cast.receiver.MediaManager.Event)}
+   */
+  this.onEditTracksInfoOrig_ =
+      this.mediaManager_.onEditTracksInfo.bind(this.mediaManager_);
+  this.mediaManager_.onEditTracksInfo = this.onEditTracksInfo_.bind(this);
+
+  /**
+   * The original metadataLoaded callback
+   * @private {?function(!cast.receiver.MediaManager.LoadInfo)}
+   */
+  this.onMetadataLoadedOrig_ =
+      this.mediaManager_.onMetadataLoaded.bind(this.mediaManager_);
+  this.mediaManager_.onMetadataLoaded = this.onMetadataLoaded_.bind(this);
 
   /**
    * The original stop callback.
@@ -259,6 +279,42 @@ sampleplayer.Type = {
 
 
 /**
+ * Describes the type of captions being used.
+ *
+ * @enum {string}
+ */
+sampleplayer.TextTrackType = {
+  SIDE_LOADED_TTML: 'ttml',
+  SIDE_LOADED_VTT: 'vtt',
+  SIDE_LOADED_UNSUPPORTED: 'unsupported',
+  EMBEDDED: 'embedded'
+};
+
+
+/**
+ * Describes the type of captions being used.
+ *
+ * @enum {string}
+ */
+sampleplayer.CaptionsMimeType = {
+  TTML: 'application/ttml+xml',
+  VTT: 'text/vtt'
+};
+
+
+/**
+ * Describes the type of track.
+ *
+ * @enum {string}
+ */
+sampleplayer.TrackType = {
+  AUDIO: 'audio',
+  VIDEO: 'video',
+  TEXT: 'text'
+};
+
+
+/**
  * Describes the state of the player.
  *
  * @enum {string}
@@ -273,22 +329,6 @@ sampleplayer.State = {
   DONE: 'done',
   IDLE: 'idle'
 };
-
-
-/**
- * The interval (in ms) of polling to check enough if data is pumped.
- *
- * @const @private {number}
- */
-sampleplayer.PUMP_POLLING_INTERVAL_ = 200;
-
-
-/**
- * The duration (in sec) of media to be pumped before playback starts.
- *
- * @const @private {number}
- */
-sampleplayer.INITIAL_PUMP_DURATION_ = 5.0;
 
 
 /**
@@ -364,6 +404,17 @@ sampleplayer.CastPlayer.prototype.getMediaManager = function() {
 
 
 /**
+ * Returns this player's MPL player.
+ *
+ * @return {cast.player.api.Player} The current MPL player.
+ * @export
+ */
+sampleplayer.CastPlayer.prototype.getPlayer = function() {
+  return this.player_;
+};
+
+
+/**
  * Starts the player.
  *
  * @export
@@ -410,6 +461,10 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
             self.setState_(sampleplayer.State.LOADING, false);
             if (deferredLoadFunc) {
               deferredLoadFunc();
+            } else if (self.playerAutoPlay_) {
+              // Make sure media info displayed long enough before playback starts.
+              self.deferPlay_(sampleplayer.MEDIA_INFO_DURATION_);
+              self.playerAutoPlay_ = false;
             }
           });
     });
@@ -428,6 +483,8 @@ sampleplayer.CastPlayer.prototype.resetMediaElement_ = function() {
     this.player_.unload();
     this.player_ = null;
   }
+  this.protocol_ = null;
+  this.textTrackType_ = null;
 };
 
 
@@ -494,17 +551,12 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
   }
 
   this.letPlayerHandleAutoPlay_(info);
-
   if (!protocolFunc) {
     this.log_('loadVideo_: using MediaElement');
     this.mediaElement_.addEventListener('stalled', this.onBuffering_.bind(this),
         false);
     this.mediaElement_.addEventListener('waiting', this.onBuffering_.bind(this),
         false);
-    this.onLoadOrig_(new cast.receiver.MediaManager.Event(
-        cast.receiver.MediaManager.EventType.LOAD,
-        /** @type {!cast.receiver.MediaManager.RequestData} */ (info.message),
-        info.senderId));
   } else {
     this.log_('loadVideo_: using Media Player Library');
     var host = new cast.player.api.Host({
@@ -514,8 +566,7 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
     host.onError = function() {
       // unload player and trigger error event on media element
       if (self.player_) {
-        self.player_.unload();
-        self.player_ = null;
+        self.resetMediaElement_();
         self.mediaElement_.dispatchEvent(new Event('error'));
       }
     };
@@ -525,8 +576,316 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
     this.mediaElement_.removeEventListener('waiting', this.onBuffering_);
 
     this.player_ = new cast.player.api.Player(host);
-    this.player_.load(protocolFunc(host));
+    this.protocol_ = protocolFunc(host);
+    this.player_.load(this.protocol_);
   }
+  this.loadMediaManagerInfo_(info, !!protocolFunc);
+};
+
+
+/**
+ * Loads media and tracks info into media manager.
+ *
+ * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
+ * @param {boolean} loadOnlyTracksMetadata Only load the tracks metadata (if
+ *     it is in the info provided).
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.loadMediaManagerInfo_ =
+    function(info, loadOnlyTracksMetadata) {
+
+  if (loadOnlyTracksMetadata) {
+    // In the case of media that uses MPL we do not
+    // use the media manager default onLoad API but we still need to load
+    // the tracks metadata information into media manager (so tracks can be
+    // managed and properly reported in the status messages) if they are
+    // provided in the info object (side loaded).
+    this.maybeLoadSideLoadedTracksMetadata_(info);
+  } else {
+    // Media supported by mediamanager, use the media manager default onLoad API
+    // to load the media, tracks metadata and, if the tracks are vtt the media
+    // manager will process the cues too.
+    this.loadDefault_(info);
+  }
+};
+
+
+/**
+ * Sets the captions type based on the text tracks.
+ *
+ * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.readSideLoadedTextTrackType_ = function(info) {
+  if (!this.mediaManager_.loadTracksInfo || !info.message ||
+      !info.message.media || !info.message.media.tracks) {
+    return;
+  }
+  for (var i = 0; i < info.message.media.tracks.length; i++) {
+    var oldTextTrackType = this.textTrackType_;
+    if (info.message.media.tracks[i].type !=
+        cast.receiver.media.TrackType.TEXT) {
+      continue;
+    }
+    if (this.isTtmlTrack_(info.message.media.tracks[i])) {
+      this.textTrackType_ =
+          sampleplayer.TextTrackType.SIDE_LOADED_TTML;
+    } else if (this.isVttTrack_(info.message.media.tracks[i])) {
+      this.textTrackType_ =
+          sampleplayer.TextTrackType.SIDE_LOADED_VTT;
+    } else {
+      this.log_('Unsupported side loaded text track types');
+      this.textTrackType_ =
+          sampleplayer.TextTrackType.SIDE_LOADED_UNSUPPORTED;
+      break;
+    }
+    // We do not support text tracks with different caption types for a single
+    // piece of content
+    if (oldTextTrackType && oldTextTrackType != this.textTrackType_) {
+      this.log_('Load has inconsistent text track types');
+      this.textTrackType_ =
+          sampleplayer.TextTrackType.SIDE_LOADED_UNSUPPORTED;
+      break;
+    }
+  }
+};
+
+
+/**
+ * If there is tracks information in the LoadInfo, it loads the side loaded
+ * tracks information in the media manager without loading media.
+ *
+ * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.maybeLoadSideLoadedTracksMetadata_ =
+    function(info) {
+  // If there are no tracks we will not load the tracks information here as
+  // we are likely in a embedded captions scenario and the information will
+  // be loaded in the onMetadataLoaded_ callback
+  if (!this.mediaManager_.loadTracksInfo ||
+      !info.message || !info.message.media || !info.message.media.tracks ||
+      info.message.media.tracks.length == 0) {
+    return;
+  }
+  var tracksInfo = /** @type {cast.receiver.media.TracksInfo} **/ ({
+      tracks: info.message.media.tracks,
+      activeTrackIds: info.message.activeTrackIds,
+      textTrackStyle: info.message.media.textTrackStyle
+  });
+  this.mediaManager_.loadTracksInfo(tracksInfo);
+};
+
+
+/**
+ * Loads embedded tracks information without loading media.
+ * If there is embedded tracks information, it loads the tracks information
+ * in the media manager without loading media.
+ *
+ * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.maybeLoadEmbeddedTracksMetadata_ =
+    function(info) {
+  if (!this.mediaManager_.loadTracksInfo ||
+      !info.message || !info.message.media) {
+    return;
+  }
+  var tracksInfo = this.readInBandTracksInfo_();
+  if (tracksInfo) {
+    this.textTrackType_ = sampleplayer.TextTrackType.EMBEDDED;
+    tracksInfo.textTrackStyle = info.message.media.textTrackStyle;
+    this.mediaManager_.loadTracksInfo(tracksInfo);
+  }
+};
+
+
+/**
+ * Processes ttml tracks and enables the active ones.
+ *
+ * @param {!Array.<number>} activeTrackIds The active tracks.
+ * @param {!Array.<cast.receiver.media.Track>} tracks The track definitions.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.processTtmlCues_ =
+    function(activeTrackIds, tracks) {
+  if (activeTrackIds.length == 0) {
+    return;
+  }
+  // If there is an active text track, that is using ttml, apply it
+  for (var i = 0; i < tracks.length; i++) {
+    var contains = false;
+    for (var j = 0; j < activeTrackIds.length; j++) {
+      if (activeTrackIds[j] == tracks[i].trackId) {
+        contains = true;
+        break;
+      }
+    }
+    if (!contains ||
+        !this.isTtmlTrack_(tracks[i])) {
+      continue;
+    }
+    if (!this.player_) {
+      // We do not have a player, it means we need to create it to support
+      // loading ttml captions
+      var host = new cast.player.api.Host({
+        'url': '',
+        'mediaElement': this.mediaElement_
+      });
+      this.protocol_ = null;
+      this.player_ = new cast.player.api.Player(host);
+    }
+    this.player_.enableCaptions(
+        true, cast.player.api.CaptionsType.TTML, tracks[i].trackContentId);
+  }
+};
+
+
+/**
+ * Checks if a track is TTML.
+ *
+ * @param {cast.receiver.media.Track} track The track.
+ * @return {boolean} Whether the track is in TTML format.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.isTtmlTrack_ = function(track) {
+  return this.isKnownTextTrack_(track,
+      sampleplayer.TextTrackType.SIDE_LOADED_TTML,
+      sampleplayer.CaptionsMimeType.TTML);
+};
+
+
+/**
+ * Checks if a track is VTT.
+ *
+ * @param {cast.receiver.media.Track} track The track.
+ * @return {boolean} Whether the track is in VTT format.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.isVttTrack_ = function(track) {
+  return this.isKnownTextTrack_(track,
+      sampleplayer.TextTrackType.SIDE_LOADED_VTT,
+      sampleplayer.CaptionsMimeType.VTT);
+};
+
+
+/**
+ * Checks if a track is of a known type by verifying the extension or mimeType.
+ *
+ * @param {cast.receiver.media.Track} track The track.
+ * @param {!sampleplayer.TextTrackType} textTrackType The text track
+ *     type expected.
+ * @param {!string} mimeType The mimeType expected.
+ * @return {boolean} Whether the track has the specified format.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.isKnownTextTrack_ =
+    function(track, textTrackType, mimeType) {
+  if (!track) {
+    return false;
+  }
+  // The sampleplayer.TextTrackType values match the
+  // file extensions required
+  var fileExtension = textTrackType;
+  var trackContentId = track.trackContentId;
+  var trackContentType = track.trackContentType;
+  if ((trackContentId && sampleplayer.getExtension_(trackContentId) === fileExtension) ||
+      (trackContentType && trackContentType.indexOf(mimeType) === 0)) {
+    return true;
+  }
+  return false;
+};
+
+
+/**
+ * Processes embedded tracks, if they exist.
+ *
+ * @param {!Array.<number>} activeTrackIds The active tracks.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.processInBandTracks_ =
+    function(activeTrackIds) {
+  var streamCount = this.protocol_.getStreamCount();
+  for (var i = 0; i < streamCount; i++) {
+    var trackId = i + 1;
+    var isActive = false;
+    for (var j = 0; j < activeTrackIds.length; j++) {
+      if (activeTrackIds[j] == trackId) {
+        isActive = true;
+        break;
+      }
+    }
+    var wasActive = this.protocol_.isStreamEnabled(i);
+    if (isActive && !wasActive) {
+      this.protocol_.enableStream(i, true);
+    } else if (!isActive && wasActive) {
+      this.protocol_.enableStream(i, false);
+    }
+  }
+};
+
+
+/**
+ * Reads in-band tracks info, if they exist.
+ *
+ * @return {cast.receiver.media.TracksInfo} The tracks info.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.readInBandTracksInfo_ = function() {
+  if (!this.protocol_) {
+    return null;
+  }
+  var streamCount = this.protocol_.getStreamCount();
+  var activeTrackIds = [];
+  var tracks = [];
+  for (var i = 0; i < streamCount; i++) {
+    var trackId = i + 1;
+    if (this.protocol_.isStreamEnabled(i)) {
+      activeTrackIds.push(trackId);
+    }
+    var streamInfo = this.protocol_.getStreamInfo(i);
+    var mimeType = streamInfo.mimeType;
+    var track;
+    if (mimeType.indexOf(sampleplayer.TrackType.TEXT) === 0 ||
+        mimeType === sampleplayer.CaptionsMimeType.TTML) {
+      track = new cast.receiver.media.Track(
+          trackId, cast.receiver.media.TrackType.TEXT);
+    } else if (mimeType.indexOf(sampleplayer.TrackType.VIDEO) === 0) {
+      track = new cast.receiver.media.Track(
+          trackId, cast.receiver.media.TrackType.VIDEO);
+    } else if (mimeType.indexOf(sampleplayer.TrackType.AUDIO) === 0) {
+      track = new cast.receiver.media.Track(
+          trackId, cast.receiver.media.TrackType.AUDIO);
+    }
+    if (track) {
+      track.name = streamInfo['name'];
+      track.language = streamInfo.language;
+      track.trackContentType = streamInfo.mimeType;
+      tracks.push(track);
+    }
+  }
+  if (tracks.length === 0) {
+    return null;
+  }
+  var tracksInfo = /** @type {cast.receiver.media.TracksInfo} **/ ({
+    tracks: tracks,
+    activeTrackIds: activeTrackIds
+  });
+  return tracksInfo;
+};
+
+
+/**
+ * Loads some media by delegating to default media manager.
+ *
+ * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.loadDefault_ = function(info) {
+  this.onLoadOrig_(new cast.receiver.MediaManager.Event(
+      cast.receiver.MediaManager.EventType.LOAD,
+      /** @type {!cast.receiver.MediaManager.RequestData} */ (info.message),
+      info.senderId));
 };
 
 
@@ -687,7 +1046,7 @@ sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
  */
 sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   this.log_('onPlaying');
-  this.cancelPlayerAutoPlay_();
+  this.cancelDeferredPlay_('media is already playing');
   var isLoading = this.state_ === sampleplayer.State.LOADING;
   this.setState_(sampleplayer.State.PLAYING, isLoading);
 };
@@ -702,7 +1061,7 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
  */
 sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.log_('onPause');
-  this.cancelPlayerAutoPlay_();
+  this.cancelDeferredPlay_('media is paused');
   var isIdle = this.state_ === sampleplayer.State.IDLE;
   var isDone = this.mediaElement_.currentTime === this.mediaElement_.duration;
   var isUnderflow = this.player_ && this.player_.getState()['underflow'];
@@ -749,7 +1108,7 @@ sampleplayer.CastPlayer.prototype.customizedStatusCallback_ = function(
  */
 sampleplayer.CastPlayer.prototype.onStop_ = function(event) {
   this.log_('onStop');
-  this.cancelPlayerAutoPlay_();
+  this.cancelDeferredPlay_('media is stopped');
   var self = this;
   sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
       function() {
@@ -858,12 +1217,71 @@ sampleplayer.CastPlayer.prototype.onVisibilityChanged_ = function(event) {
  */
 sampleplayer.CastPlayer.prototype.onLoad_ = function(event) {
   this.log_('onLoad_');
-  this.cancelPlayerAutoPlay_();
+  this.cancelDeferredPlay_('new media is loaded');
   this.load(new cast.receiver.MediaManager.LoadInfo(
       /** @type {!cast.receiver.MediaManager.LoadRequestData} */ (event.data),
       event.senderId));
 };
 
+
+/**
+ * Called when we receive a EDIT_TRACKS_INFO message.
+ *
+ * @param {!cast.receiver.MediaManager.Event} event The editTracksInfo event.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.onEditTracksInfo_ = function(event) {
+  this.log_('onEditTracksInfo');
+  this.onEditTracksInfoOrig_(event);
+
+  // If the captions are embedded or ttml we need to enable/disable tracks
+  // as needed (vtt is processed by the media manager)
+  if (!event.data || !event.data.activeTrackIds || !this.textTrackType_) {
+    return;
+  }
+  var mediaInformation = this.mediaManager_.getMediaInformation() || {};
+  var type = this.textTrackType_;
+  if (type == sampleplayer.TextTrackType.SIDE_LOADED_TTML) {
+    // The player_ may not have been created yet if the type of media did
+    // not require MPL. It will be lazily created in processTtmlCues_
+    if (this.player_) {
+      this.player_.enableCaptions(false, cast.player.api.CaptionsType.TTML);
+    }
+    this.processTtmlCues_(event.data.activeTrackIds,
+        mediaInformation.tracks || []);
+  } else if (type == sampleplayer.TextTrackType.EMBEDDED) {
+    this.player_.enableCaptions(false);
+    this.processInBandTracks_(event.data.activeTrackIds);
+    this.player_.enableCaptions(true);
+  }
+};
+
+
+/**
+ * Called when metadata is loaded, at this point we have the tracks information
+ * if we need to provision embedded captions.
+ *
+ * @param {!cast.receiver.MediaManager.LoadInfo} info The load information.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.onMetadataLoaded_ = function(info) {
+  this.onLoadSuccess_();
+  // In the case of ttml and embedded captions we need to load the cues using
+  // MPL.
+  this.readSideLoadedTextTrackType_(info);
+
+  if (this.textTrackType_ ==
+      sampleplayer.TextTrackType.SIDE_LOADED_TTML &&
+      info.message && info.message.activeTrackIds && info.message.media &&
+      info.message.media.tracks) {
+    this.processTtmlCues_(
+        info.message.activeTrackIds, info.message.media.tracks);
+  } else if (!this.textTrackType_) {
+    // If we do not have a textTrackType, check if the tracks are embedded
+    this.maybeLoadEmbeddedTracksMetadata_(info);
+  }
+  this.onMetadataLoadedOrig_(info);
+};
 
 /**
  * Called when the media could not be successfully loaded. Transitions to
@@ -886,63 +1304,36 @@ sampleplayer.CastPlayer.prototype.onLoadMetadataError_ = function(event) {
 
 
 /**
- * Returns length of buffered duration from current media time.
+ * Cancels deferred playback.
  *
- * @return {number} Length of buffered duration in sec.
+ * @param {string} cancelReason
  * @private
  */
-sampleplayer.CastPlayer.prototype.getBufferedDuration_ = function() {
-  this.log_('getBufferedDuration_');
-  var bufferedRanges = this.mediaElement_.buffered;
-  var currentTime = this.mediaElement_.currentTime;
-  var bufferedDuration = 0;
-  for (var i = 0; bufferedRanges && i < bufferedRanges.length; i++) {
-    if (bufferedRanges.start(i) <= currentTime &&
-        bufferedRanges.end(i) > currentTime) {
-      bufferedDuration = bufferedRanges.end(i) - currentTime;
-      break;
+sampleplayer.CastPlayer.prototype.cancelDeferredPlay_ = function(cancelReason) {
+  if (this.deferredPlayCallbackId_) {
+    this.log_('Cancelled deferred playback: ' + cancelReason);
+    clearTimeout(this.deferredPlayCallbackId_);
+    this.deferredPlayCallbackId_ = null;
+  }
+};
+
+
+/**
+ * Defers playback start by given timeout.
+ *
+ * @param {number} timeout In msec.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.deferPlay_ = function(timeout) {
+  var self = this;
+  this.deferredPlayCallbackId_ = setTimeout(function() {
+    self.deferredPlayCallbackId_ = null;
+    if (self.player_ && self.player_.playWhenHaveEnoughData) {
+      self.player_.playWhenHaveEnoughData();
+    } else {
+      self.mediaElement_.play();
     }
-  }
-  return bufferedDuration;
-};
-
-
-/**
- * Starts playback after enough data is buffered initially.
- *
- * @private
- */
-sampleplayer.CastPlayer.prototype.doPlayerAutoPlay_ = function() {
-  this.log_('doPlayerAutoPlay_');
-  var mediaElement = this.mediaElement_;
-  var bufferedDuration = this.getBufferedDuration_();
-  var hasEnoughDataPumped =
-      bufferedDuration >= sampleplayer.INITIAL_PUMP_DURATION_;
-  if (hasEnoughDataPumped) {
-    this.log_('Playback starts with initial buffer of ' +
-        bufferedDuration.toFixed(2));
-    mediaElement.play();
-    this.playerAutoPlayTimerId_ = null;
-  } else {
-    this.playerAutoPlayTimerId_ = setTimeout(
-        this.playerAutoPlayHandler_,
-        sampleplayer.PUMP_POLLING_INTERVAL_);
-  }
-};
-
-
-/**
- * Cancels autoplay handled by player.
- *
- * @private
- */
-sampleplayer.CastPlayer.prototype.cancelPlayerAutoPlay_ = function() {
-  this.log_('cancelPlayerAutoPlay_');
-  if (this.playerAutoPlayTimerId_) {
-    this.log_('Deferred playback is cancelled');
-    clearTimeout(this.playerAutoPlayTimerId_);
-    this.playerAutoPlayTimerId_ = null;
-  }
+  }, timeout);
 };
 
 
@@ -964,21 +1355,6 @@ sampleplayer.CastPlayer.prototype.onLoadSuccess_ = function() {
     this.totalTimeElement_.textContent = '';
     this.progressBarInnerElement_.style.width = '100%';
     this.progressBarThumbElement_.style.left = '100%';
-  }
-
-  // if we were set to autoplay, delay playback by a short amount of time
-  if (this.playerAutoPlay_) {
-    // Make sure media info displayed long enough before playback starts.
-    var self = this;
-    setTimeout(function() {
-      if (this.player_ &&
-          !isNaN(totalTime) &&
-          totalTime > sampleplayer.INITIAL_PUMP_DURATION_) {
-        self.doPlayerAutoPlay_();
-      } else {
-        self.mediaElement_.play();
-      }
-    }, sampleplayer.MEDIA_INFO_DURATION_);
   }
 };
 
