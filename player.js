@@ -462,7 +462,7 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
             if (deferredLoadFunc) {
               deferredLoadFunc();
             } else if (self.playerAutoPlay_) {
-              // Make sure media info displayed long enough before playback starts.
+              // Make sure media info displayed enough before playback starts.
               self.deferPlay_(sampleplayer.MEDIA_INFO_DURATION_);
               self.playerAutoPlay_ = false;
             }
@@ -616,9 +616,9 @@ sampleplayer.CastPlayer.prototype.loadMediaManagerInfo_ =
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
  * @private
  */
-sampleplayer.CastPlayer.prototype.readSideLoadedTextTrackType_ = function(info) {
-  if (!this.mediaManager_.loadTracksInfo || !info.message ||
-      !info.message.media || !info.message.media.tracks) {
+sampleplayer.CastPlayer.prototype.readSideLoadedTextTrackType_ =
+    function(info) {
+  if (!info.message || !info.message.media || !info.message.media.tracks) {
     return;
   }
   for (var i = 0; i < info.message.media.tracks.length; i++) {
@@ -663,15 +663,14 @@ sampleplayer.CastPlayer.prototype.maybeLoadSideLoadedTracksMetadata_ =
   // If there are no tracks we will not load the tracks information here as
   // we are likely in a embedded captions scenario and the information will
   // be loaded in the onMetadataLoaded_ callback
-  if (!this.mediaManager_.loadTracksInfo ||
-      !info.message || !info.message.media || !info.message.media.tracks ||
+  if (!info.message || !info.message.media || !info.message.media.tracks ||
       info.message.media.tracks.length == 0) {
     return;
   }
   var tracksInfo = /** @type {cast.receiver.media.TracksInfo} **/ ({
-      tracks: info.message.media.tracks,
-      activeTrackIds: info.message.activeTrackIds,
-      textTrackStyle: info.message.media.textTrackStyle
+    tracks: info.message.media.tracks,
+    activeTrackIds: info.message.activeTrackIds,
+    textTrackStyle: info.message.media.textTrackStyle
   });
   this.mediaManager_.loadTracksInfo(tracksInfo);
 };
@@ -687,8 +686,7 @@ sampleplayer.CastPlayer.prototype.maybeLoadSideLoadedTracksMetadata_ =
  */
 sampleplayer.CastPlayer.prototype.maybeLoadEmbeddedTracksMetadata_ =
     function(info) {
-  if (!this.mediaManager_.loadTracksInfo ||
-      !info.message || !info.message.media) {
+  if (!info.message || !info.message.media) {
     return;
   }
   var tracksInfo = this.readInBandTracksInfo_();
@@ -789,7 +787,8 @@ sampleplayer.CastPlayer.prototype.isKnownTextTrack_ =
   var fileExtension = textTrackType;
   var trackContentId = track.trackContentId;
   var trackContentType = track.trackContentType;
-  if ((trackContentId && sampleplayer.getExtension_(trackContentId) === fileExtension) ||
+  if ((trackContentId &&
+          sampleplayer.getExtension_(trackContentId) === fileExtension) ||
       (trackContentType && trackContentType.indexOf(mimeType) === 0)) {
     return true;
   }
@@ -1283,6 +1282,7 @@ sampleplayer.CastPlayer.prototype.onMetadataLoaded_ = function(info) {
   this.onMetadataLoadedOrig_(info);
 };
 
+
 /**
  * Called when the media could not be successfully loaded. Transitions to
  * IDLE state and calls the original media manager implementation.
@@ -1328,7 +1328,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function(timeout) {
   var self = this;
   this.deferredPlayCallbackId_ = setTimeout(function() {
     self.deferredPlayCallbackId_ = null;
-    if (self.player_ && self.player_.playWhenHaveEnoughData) {
+    if (self.player_) {
       self.player_.playWhenHaveEnoughData();
     } else {
       self.mediaElement_.play();
