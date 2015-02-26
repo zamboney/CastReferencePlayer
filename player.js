@@ -1816,8 +1816,7 @@ sampleplayer.isCastForAudioDevice_ = function() {
   if (receiverManager) {
     var deviceCapabilities = receiverManager.getDeviceCapabilities();
     if (deviceCapabilities) {
-      // TODO broken API
-      return deviceCapabilities[21] === 'f';
+      return deviceCapabilities['display_supported'] === false;
     }
   }
   return false;
