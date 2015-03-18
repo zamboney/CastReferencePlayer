@@ -289,9 +289,6 @@ sampleplayer.CastPlayer = function(element) {
 
   this.mediaManager_.customizedStatusCallback =
       this.customizedStatusCallback_.bind(this);
-
-  this.mediaManager_.onQueueUpdate =
-      this.onQueueUpdate_.bind(this);
 };
 
 
@@ -1473,18 +1470,6 @@ sampleplayer.CastPlayer.prototype.onLoadSuccess_ = function() {
     this.progressBarInnerElement_.style.width = '100%';
     this.progressBarThumbElement_.style.left = '100%';
   }
-};
-
-
-/**
- * Called when we receive queue event.
- *
- * @param {cast.receiver.MediaManager.Event} event The stop event.
- * @private
- */
-sampleplayer.CastPlayer.prototype.onQueueUpdate_ = function(event) {
-  this.log_('onQueueUpdate: ' + event.data['jump']);
-  // where +1 = Next; -1 = Prev
 };
 
 
