@@ -170,6 +170,30 @@ sampleplayer.CastPlayer = function(element) {
   this.totalTimeElement_ = this.getElementByClass_('.controls-total-time');
 
   /**
+   * The DOM element for the preview time label.
+   * @private {!Element}
+   */
+  this.previewModeTimerElement_ = this.getElementByClass_('.preview-mode-timer-countdown');
+
+  /**
+   * Handler for buffering-related events for MediaElement.
+   * @private {function()}
+   */
+  this.bufferingHandler_ = this.onBuffering_.bind(this);
+
+  /**
+   * Media player to play given manifest.
+   * @private {cast.player.api.Player}
+   */
+  this.player_ = null;
+
+  /**
+   * Media player used to preload content.
+   * @private {cast.player.api.Player}
+   */
+  this.preloadPlayer_ = null;
+
+  /**
    * Text Tracks currently supported.
    * @private {?sampleplayer.TextTrackType}
    */
@@ -180,6 +204,12 @@ sampleplayer.CastPlayer = function(element) {
    * @private {boolean}
    */
   this.playerAutoPlay_ = false;
+
+  /**
+   * Whether player app should display the preview mode UI.
+   * @private {boolean}
+   */
+  this.displayPreviewMode_ = false;
 
   /**
    * Id of deferred play callback
@@ -211,6 +241,7 @@ sampleplayer.CastPlayer = function(element) {
       false);
   this.mediaElement_.addEventListener('pause', this.onPause_.bind(this), false);
   this.mediaElement_.addEventListener('ended', this.onEnded_.bind(this), false);
+  this.mediaElement_.addEventListener('abort', this.onAbort_.bind(this), false);
   this.mediaElement_.addEventListener('timeupdate', this.onProgress_.bind(this),
       false);
   this.mediaElement_.addEventListener('seeking', this.onSeekStart_.bind(this),
@@ -289,6 +320,9 @@ sampleplayer.CastPlayer = function(element) {
 
   this.mediaManager_.customizedStatusCallback =
       this.customizedStatusCallback_.bind(this);
+
+  this.mediaManager_.onPreload = this.onPreload_.bind(this);
+  this.mediaManager_.onCancelPreload = this.onCancelPreload_.bind(this);
 };
 
 
@@ -469,6 +503,107 @@ sampleplayer.CastPlayer.prototype.start = function() {
 
 
 /**
+ * Preloads the given data.
+ *
+ * @param {!cast.receiver.media.MediaInformation} mediaInformation The
+ *     asset media information.
+ * @return {boolean} Whether the media can be preloaded.
+ * @export
+ */
+sampleplayer.CastPlayer.prototype.preload = function(mediaInformation) {
+  this.log_('preload');
+  // For video formats that cannot be preloaded (mp4...), display preview UI.
+  if (sampleplayer.canDisplayPreview_(mediaInformation || {})) {
+    this.showPreviewMode_(mediaInformation);
+    return true;
+  }
+  if (!sampleplayer.supportsPreload_(mediaInformation || {})) {
+    this.log_('preload: no supportsPreload_');
+    return false;
+  }
+  if (this.preloadPlayer_) {
+    this.preloadPlayer_.unload();
+    this.preloadPlayer_ = null;
+  }
+  // Only videos are supported for now
+  var couldPreload = this.preloadVideo_(mediaInformation);
+  if (couldPreload) {
+    this.showPreviewMode_(mediaInformation);
+  }
+  this.log_('preload: couldPreload=' + couldPreload);
+  return couldPreload;
+};
+
+
+/**
+ * Display preview mode metadata.
+ *
+ * @param {boolean} show whether player is showing preview mode metadata
+ * @export
+ */
+sampleplayer.CastPlayer.prototype.showPreviewModeMetadata = function(show) {
+  this.element_.setAttribute('preview-mode', show.toString());
+};
+
+/**
+ * Show the preview mode UI.
+ *
+ * @param {!cast.receiver.media.MediaInformation} mediaInformation The
+ *     asset media information.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.showPreviewMode_ = function(mediaInformation) {
+  this.displayPreviewMode_ = true;
+  this.loadPreviewModeMetadata_(mediaInformation);
+  this.showPreviewModeMetadata(true);
+};
+
+
+/**
+ * Hide the preview mode UI.
+ *
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.hidePreviewMode_ = function() {
+  this.showPreviewModeMetadata(false);
+  this.displayPreviewMode_ = false;
+};
+
+
+/**
+ * Preloads some video content.
+ *
+ * @param {!cast.receiver.media.MediaInformation} mediaInformation The
+ *     asset media information.
+ * @return {boolean} Whether the video can be preloaded.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
+  this.log_('preloadVideo_');
+  var self = this;
+  var url = mediaInformation.contentId;
+  var protocolFunc = sampleplayer.getProtocolFunction_(mediaInformation);
+  if (!protocolFunc) {
+    this.log_('No protocol found for preload');
+    return false;
+  }
+  var host = new cast.player.api.Host({
+    'url': url,
+    'mediaElement': self.mediaElement_
+  });
+  host.onError = function() {
+    self.preloadPlayer_.unload();
+    self.preloadPlayer_ = null;
+    self.showPreviewModeMetadata(false);
+    self.displayPreviewMode_ = false;
+    self.log_('Error during preload');
+  };
+  self.preloadPlayer_ = new cast.player.api.Player(host);
+  self.preloadPlayer_.preload(protocolFunc(host));
+  return true;
+};
+
+/**
  * Loads the given data.
  *
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
@@ -492,32 +627,46 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
     this.log_('Loading: ' + playerType);
     self.resetMediaElement_();
     self.setType_(playerType, isLiveStream);
+    var preloaded = false;
     switch (playerType) {
       case sampleplayer.Type.AUDIO:
         self.loadAudio_(info);
         break;
       case sampleplayer.Type.VIDEO:
-        self.loadVideo_(info);
+        preloaded = self.loadVideo_(info);
         break;
     }
     self.playerReady_ = false;
     self.metadataLoaded_ = false;
     self.loadMetadata_(media);
+    self.showPreviewModeMetadata(false);
+    self.displayPreviewMode_ = false;
     sampleplayer.preload_(media, function() {
-      sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function() {
-        self.setState_(sampleplayer.State.LOADING, false);
-        // Only send load completed after we reach this point so the media
-        // manager state is still loading and the sender can't send any PLAY
-        // messages
+      self.log_('preloaded=' + preloaded);
+      if (preloaded) {
+        // Data is ready to play so transiton directly to playing.
+        self.setState_(sampleplayer.State.PLAYING, false);
         self.playerReady_ = true;
         self.maybeSendLoadCompleted_(info);
-        if (self.playerAutoPlay_) {
-          // Make sure media info is displayed long enough before playback
-          // starts.
-          self.deferPlay_(sampleplayer.MEDIA_INFO_DURATION_);
-          self.playerAutoPlay_ = false;
-        }
-      });
+        // Don't display metadata again, since autoplay already did that.
+        self.deferPlay_(0);
+        self.playerAutoPlay_ = false;
+      } else {
+        sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function() {
+          self.setState_(sampleplayer.State.LOADING, false);
+          // Only send load completed after we reach this point so the media
+          // manager state is still loading and the sender can't send any PLAY
+          // messages
+          self.playerReady_ = true;
+          self.maybeSendLoadCompleted_(info);
+          if (self.playerAutoPlay_) {
+            // Make sure media info is displayed long enough before playback
+            // starts.
+            self.deferPlay_(sampleplayer.MEDIA_INFO_DURATION_);
+            self.playerAutoPlay_ = false;
+          }
+        });
+      }
     });
   }
 };
@@ -581,6 +730,31 @@ sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
 
 
 /**
+ * Loads the metadata for the given preview mode media.
+ *
+ * @param {!cast.receiver.media.MediaInformation} media The media.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.loadPreviewModeMetadata_ = function(media) {
+  this.log_('loadPreviewModeMetadata_');
+  if (!sampleplayer.isCastForAudioDevice_()) {
+    var metadata = media.metadata || {};
+    var titleElement = this.element_.querySelector('.preview-mode-title');
+    sampleplayer.setInnerText_(titleElement, metadata.title);
+
+    var subtitleElement = this.element_.querySelector('.preview-mode-subtitle');
+    sampleplayer.setInnerText_(subtitleElement, metadata.subtitle);
+
+    var artwork = sampleplayer.getMediaImageUrl_(media);
+    if (artwork) {
+      var artworkElement = this.element_.querySelector('.preview-mode-artwork');
+      sampleplayer.setBackgroundImage_(artworkElement, artwork);
+    }
+  }
+};
+
+
+/**
  * Lets player handle autoplay, instead of depending on underlying
  * MediaElement to handle it. By this way, we can make sure that media playback
  * starts after loading screen is displayed.
@@ -614,6 +788,7 @@ sampleplayer.CastPlayer.prototype.loadAudio_ = function(info) {
  * Loads some video content.
  *
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
+ * @return {boolean} Whether the media was preloaded
  * @private
  */
 sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
@@ -621,49 +796,58 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
   var self = this;
   var protocolFunc = null;
   var url = info.message.media.contentId;
-  var type = info.message.media.contentType || '';
-  var path = sampleplayer.getPath_(url);
-  if (sampleplayer.getExtension_(path) === 'm3u8' ||
-          type === 'application/x-mpegurl' ||
-          type === 'application/vnd.apple.mpegurl') {
-    protocolFunc = cast.player.api.CreateHlsStreamingProtocol;
-  } else if (sampleplayer.getExtension_(path) === 'mpd' ||
-          type === 'application/dash+xml') {
-    protocolFunc = cast.player.api.CreateDashStreamingProtocol;
-  } else if (path.indexOf('.ism') > -1 ||
-          type === 'application/vnd.ms-sstr+xml') {
-    protocolFunc = cast.player.api.CreateSmoothStreamingProtocol;
-  }
+  var protocolFunc = sampleplayer.getProtocolFunction_(info.message.media);
+  var wasPreloaded = false;
 
   this.letPlayerHandleAutoPlay_(info);
   if (!protocolFunc) {
     this.log_('loadVideo_: using MediaElement');
-    this.mediaElement_.addEventListener('stalled', this.onBuffering_.bind(this),
+    this.mediaElement_.addEventListener('stalled', this.bufferingHandler_,
         false);
-    this.mediaElement_.addEventListener('waiting', this.onBuffering_.bind(this),
+    this.mediaElement_.addEventListener('waiting', this.bufferingHandler_,
         false);
   } else {
     this.log_('loadVideo_: using Media Player Library');
-    var host = new cast.player.api.Host({
-      'url': url,
-      'mediaElement': this.mediaElement_
-    });
-    host.onError = function() {
+    // When MPL is used, buffering status should be detected by
+    // getState()['underflow]'
+    this.mediaElement_.removeEventListener('stalled', this.bufferingHandler_);
+    this.mediaElement_.removeEventListener('waiting', this.bufferingHandler_);
+
+    // If we have not preloaded or the content preloaded does not match the
+    // content that needs to be loaded, perform a full load
+    var loadErrorCallback = function() {
       // unload player and trigger error event on media element
       if (self.player_) {
         self.resetMediaElement_();
         self.mediaElement_.dispatchEvent(new Event('error'));
       }
     };
-    // When MPL is used, buffering status should be detected by
-    // getState()['underflow]'
-    this.mediaElement_.removeEventListener('stalled', this.onBuffering_);
-    this.mediaElement_.removeEventListener('waiting', this.onBuffering_);
-
-    this.player_ = new cast.player.api.Player(host);
-    this.player_.load(protocolFunc(host));
+    if (!this.preloadPlayer_ || (this.preloadPlayer_.getHost &&
+        this.preloadPlayer_.getHost().url != url)) {
+      if (this.preloadPlayer_) {
+        this.preloadPlayer_.unload();
+        this.preloadPlayer_ = null;
+      }
+      this.log_('Regular video load');
+      var host = new cast.player.api.Host({
+        'url': url,
+        'mediaElement': this.mediaElement_
+      });
+      host.onError = loadErrorCallback;
+      this.player_ = new cast.player.api.Player(host);
+      this.player_.load(protocolFunc(host));
+    } else {
+      this.log_('Preloaded video load');
+      this.player_ = this.preloadPlayer_;
+      this.preloadPlayer_ = null;
+      // Replace the "preload" error callback with the "load" error callback
+      this.player_.getHost().onError = loadErrorCallback;
+      this.player_.load();
+      wasPreloaded = true;
+    }
   }
   this.loadMediaManagerInfo_(info, !!protocolFunc);
+  return wasPreloaded;
 };
 
 
@@ -1235,7 +1419,20 @@ sampleplayer.CastPlayer.prototype.onStop_ = function(event) {
  */
 sampleplayer.CastPlayer.prototype.onEnded_ = function() {
   this.log_('onEnded');
-  this.setState_(sampleplayer.State.DONE, true);
+  this.setState_(sampleplayer.State.IDLE, true);
+  this.hidePreviewMode_();
+};
+
+
+/**
+ * Called when media has been aborted. We transition to the IDLE state.
+ *
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.onAbort_ = function() {
+  this.log_('onAbort');
+  this.setState_(sampleplayer.State.IDLE, true);
+  this.hidePreviewMode_();
 };
 
 
@@ -1271,6 +1468,10 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       this.totalTimeElement_.innerText = sampleplayer.formatDuration_(totalTime);
       this.progressBarInnerElement_.style.width = pct + '%';
       this.progressBarThumbElement_.style.left = pct + '%';
+      // Handle preview mode
+      if (this.displayPreviewMode_) {
+        this.previewModeTimerElement_.innerText = "" + Math.round(totalTime-curTime);
+      }
     }
   }
 };
@@ -1317,6 +1518,37 @@ sampleplayer.CastPlayer.prototype.onVisibilityChanged_ = function(event) {
     this.mediaElement_.pause();
     this.mediaManager_.broadcastStatus(false);
   }
+};
+
+
+/**
+ * Called when we receive a PRELOAD message.
+ *
+ * @see castplayer.CastPlayer#load
+ * @param {cast.receiver.MediaManager.Event} event The load event.
+ * @return {boolean} Whether the item can be preloaded.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.onPreload_ = function(event) {
+  this.log_('onPreload_');
+  var loadRequestData =
+      /** @type {!cast.receiver.MediaManager.LoadRequestData} */ (event.data);
+  return this.preload(loadRequestData.media);
+};
+
+
+/**
+ * Called when we receive a CANCEL_PRELOAD message.
+ *
+ * @see castplayer.CastPlayer#load
+ * @param {cast.receiver.MediaManager.Event} event The load event.
+ * @return {boolean} Whether the item can be preloaded.
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.onCancelPreload_ = function(event) {
+  this.log_('onCancelPreload_');
+  this.hidePreviewMode_();
+  return true;
 };
 
 
@@ -1377,6 +1609,7 @@ sampleplayer.CastPlayer.prototype.onEditTracksInfo_ = function(event) {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onMetadataLoaded_ = function(info) {
+  this.log_('onMetadataLoaded');
   this.onLoadSuccess_();
   // In the case of ttml and embedded captions we need to load the cues using
   // MPL.
@@ -1440,12 +1673,15 @@ sampleplayer.CastPlayer.prototype.cancelDeferredPlay_ = function(cancelReason) {
  * @private
  */
 sampleplayer.CastPlayer.prototype.deferPlay_ = function(timeout) {
+  this.log_('Defering playback for ' + timeout + ' ms');
   var self = this;
   this.deferredPlayCallbackId_ = setTimeout(function() {
     self.deferredPlayCallbackId_ = null;
     if (self.player_) {
+      self.log_('Playing when enough data');
       self.player_.playWhenHaveEnoughData();
     } else {
+      self.log_('Playing');
       self.mediaElement_.play();
     }
   }, timeout);
@@ -1484,6 +1720,69 @@ sampleplayer.getMediaImageUrl_ = function(media) {
   var metadata = media.metadata || {};
   var images = metadata['images'] || [];
   return images && images[0] && images[0]['url'];
+};
+
+
+/**
+ * Gets the adaptive streaming protocol creation function based on the media
+ * information.
+ *
+ * @param {!cast.receiver.media.MediaInformation} mediaInformation The
+ *     asset media information.
+ * @return {?function(cast.player.api.Host):player.StreamingProtocol}
+ *     The protocol function that corresponds to this media type.
+ * @private
+ */
+sampleplayer.getProtocolFunction_ = function(mediaInformation) {
+  var url = mediaInformation.contentId;
+  var type = mediaInformation.contentType || '';
+  var path = sampleplayer.getPath_(url) || '';
+  if (sampleplayer.getExtension_(path) === 'm3u8' ||
+          type === 'application/x-mpegurl' ||
+          type === 'application/vnd.apple.mpegurl') {
+    return cast.player.api.CreateHlsStreamingProtocol;
+  } else if (sampleplayer.getExtension_(path) === 'mpd' ||
+          type === 'application/dash+xml') {
+    return cast.player.api.CreateDashStreamingProtocol;
+  } else if (path.indexOf('.ism') > -1 ||
+          type === 'application/vnd.ms-sstr+xml') {
+    return cast.player.api.CreateSmoothStreamingProtocol;
+  }
+  return null;
+};
+
+
+/**
+ * Returns true if the media can be preloaded.
+ *
+ * @param {!cast.receiver.media.MediaInformation} media The media information.
+ * @return {boolean} whether the media can be preloaded.
+ * @private
+ */
+sampleplayer.supportsPreload_ = function(media) {
+  return sampleplayer.getProtocolFunction_(media) != null;
+};
+
+
+/**
+ * Returns true if the preview UI should be shown for the type of media
+ * although the media can not be preloaded.
+ *
+ * @param {!cast.receiver.media.MediaInformation} media The media information.
+ * @return {boolean} whether the media can be previewed.
+ * @private
+ */
+sampleplayer.canDisplayPreview_ = function(media) {
+  var contentId = media.contentId || '';
+  var contentUrlPath = sampleplayer.getPath_(contentId);
+  if (sampleplayer.getExtension_(contentUrlPath) === 'mp4') {
+    return true;
+  } else if (sampleplayer.getExtension_(contentUrlPath) === 'ogv') {
+    return true;
+  } else if (sampleplayer.getExtension_(contentUrlPath) === 'webm') {
+    return true;
+  }
+  return false;
 };
 
 
@@ -1586,7 +1885,7 @@ sampleplayer.addClassWithTimeout_ = function(element, className, timeout) {
  * @private
  */
 sampleplayer.transition_ = function(element, time, something) {
-  if (sampleplayer.isCastForAudioDevice_()) {
+  if (time <= 0 || sampleplayer.isCastForAudioDevice_()) {
     // No transitions supported for Cast for Audio devices
     something();
   } else {
