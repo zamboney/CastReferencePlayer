@@ -4,6 +4,8 @@ This sample shows how to develop a fully Cast Design Checklist compliant receive
 
 **This is a reference receiver app to be used as the starting point for your custom receiver**
 
+**NOTE: The receiver code refers to the Autoplay UI logic as "PreviewMode" since the reference receiver already supports a playback feature called "autoplay".**
+
 Here is the list of other reference apps:
 * [Android Sender: CastVideos-android](https://github.com/googlecast/CastVideos-android)
 * [iOS Sender: CastVideos-ios](https://github.com/googlecast/CastVideos-ios)
@@ -23,9 +25,9 @@ Here is the list of other reference apps:
 ## References and How to report bugs
 * [Cast Developer Documentation](http://developers.google.com/cast/)
 * [Receiver Apps](https://developers.google.com/cast/docs/receiver_apps)
-* [Media Player Library Reference](https://devsite.googleplex.com/cast/docs/reference/player/)
+* [Media Player Library Reference](http://developers.google.com/cast/docs/player)
 * [Receiver Reference](https://developers.google.com/cast/docs/reference/receiver/)
-* [Design Checklist](http://developers.google.com/cast/docs/design_checklist)
+* [Design Checklist](https://developers.google.com/cast/docs/design_checklist)
 * If you find any issues with this sample, please open a bug here on GitHub
 * Questions are answered on [StackOverflow](http://stackoverflow.com/questions/tagged/google-cast)
 * [Google Cast Issue Tracker](https://code.google.com/p/google-cast-sdk/)
