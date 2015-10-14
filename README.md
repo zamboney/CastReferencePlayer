@@ -1,4 +1,4 @@
-# Cast-Player-Sample (reference receiver app)
+# CastReferencePlayer (reference receiver app)
 
 This sample shows how to develop a fully Cast Design Checklist compliant receiver.
 
