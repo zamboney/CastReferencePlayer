@@ -2,7 +2,7 @@
 
 This sample shows how to develop a fully Cast Design Checklist compliant receiver.
 
-**This is a reference receiver app to be used as the starting point for your custom receiver**
+**This receiver is not recommended for new development. We recommend you [migrate to the Cast Application Framework (CAF) Receiver](https://developers.google.com/cast/docs/caf_receiver_overview). Also see the [Basic CAF Receiver sample app](https://github.com/googlecast/BasicReceiverCAF).**
 
 **NOTE: The receiver code refers to the Autoplay UI logic as "PreviewMode" since the reference receiver already supports a playback feature called "autoplay".**
 
