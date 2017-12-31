@@ -73,7 +73,7 @@ var sampleplayer = sampleplayer || {};
  * @constructor
  * @export
  */
-sampleplayer.CastPlayer = function(element) {
+sampleplayer.CastPlayer = function (element) {
 
   /**
    * The debug setting to control receiver, MPL and player logging.
@@ -148,14 +148,14 @@ sampleplayer.CastPlayer = function(element) {
    * @private {!Element}
    */
   this.progressBarInnerElement_ = this.getElementByClass_(
-      '.controls-progress-inner');
+    '.controls-progress-inner');
 
   /**
    * The DOM element for the thumb portion of the progress bar.
    * @private {!Element}
    */
   this.progressBarThumbElement_ = this.getElementByClass_(
-      '.controls-progress-thumb');
+    '.controls-progress-thumb');
 
   /**
    * The DOM element for the current time label.
@@ -235,33 +235,33 @@ sampleplayer.CastPlayer = function(element) {
    * @private {HTMLMediaElement}
    */
   this.mediaElement_ = /** @type {HTMLMediaElement} */
-      (this.element_.querySelector('#video1'));
+    (this.element_.querySelector('#video1'));
   this.mediaElement_.addEventListener('error', this.onError_.bind(this), false);
   this.mediaElement_.addEventListener('playing', this.onPlaying_.bind(this),
-      false);
+    false);
   this.mediaElement_.addEventListener('pause', this.onPause_.bind(this), false);
   this.mediaElement_.addEventListener('ended', this.onEnded_.bind(this), false);
   this.mediaElement_.addEventListener('abort', this.onAbort_.bind(this), false);
   this.mediaElement_.addEventListener('timeupdate', this.onProgress_.bind(this),
-      false);
+    false);
   this.mediaElement_.addEventListener('seeking', this.onSeekStart_.bind(this),
-      false);
+    false);
   this.mediaElement_.addEventListener('seeked', this.onSeekEnd_.bind(this),
-      false);
-      this.mediaElement_2 = /** @type {HTMLMediaElement} */
-      (this.element_.querySelector('#video2'));
+    false);
+  this.mediaElement_2 = /** @type {HTMLMediaElement} */
+    (this.element_.querySelector('#video2'));
   this.mediaElement_2.addEventListener('error', this.onError_.bind(this), false);
   this.mediaElement_2.addEventListener('playing', this.onPlaying_.bind(this),
-      false);
+    false);
   this.mediaElement_2.addEventListener('pause', this.onPause_.bind(this), false);
   this.mediaElement_2.addEventListener('ended', this.onEnded_.bind(this), false);
   this.mediaElement_2.addEventListener('abort', this.onAbort_.bind(this), false);
   this.mediaElement_2.addEventListener('timeupdate', this.onProgress_.bind(this),
-      false);
+    false);
   this.mediaElement_2.addEventListener('seeking', this.onSeekStart_.bind(this),
-      false);
+    false);
   this.mediaElement_2.addEventListener('seeked', this.onSeekEnd_.bind(this),
-      false);
+    false);
 
 
   /**
@@ -271,11 +271,11 @@ sampleplayer.CastPlayer = function(element) {
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onReady = this.onReady_.bind(this);
   this.receiverManager_.onSenderDisconnected =
-      this.onSenderDisconnected_.bind(this);
+    this.onSenderDisconnected_.bind(this);
   this.receiverManager_.onVisibilityChanged =
-      this.onVisibilityChanged_.bind(this);
+    this.onVisibilityChanged_.bind(this);
   this.receiverManager_.setApplicationState(
-      sampleplayer.getApplicationState_());
+    sampleplayer.getApplicationState_());
 
 
   /**
@@ -289,7 +289,7 @@ sampleplayer.CastPlayer = function(element) {
    * @private {?function(cast.receiver.MediaManager.Event)}
    */
   this.onLoadOrig_ =
-      this.mediaManager_.onLoad.bind(this.mediaManager_);
+    this.mediaManager_.onLoad.bind(this.mediaManager_);
   this.mediaManager_.onLoad = this.onLoad_.bind(this);
 
   /**
@@ -297,7 +297,7 @@ sampleplayer.CastPlayer = function(element) {
    * @private {?function(!cast.receiver.MediaManager.Event)}
    */
   this.onEditTracksInfoOrig_ =
-      this.mediaManager_.onEditTracksInfo.bind(this.mediaManager_);
+    this.mediaManager_.onEditTracksInfo.bind(this.mediaManager_);
   this.mediaManager_.onEditTracksInfo = this.onEditTracksInfo_.bind(this);
 
   /**
@@ -305,7 +305,7 @@ sampleplayer.CastPlayer = function(element) {
    * @private {?function(!cast.receiver.MediaManager.LoadInfo)}
    */
   this.onMetadataLoadedOrig_ =
-      this.mediaManager_.onMetadataLoaded.bind(this.mediaManager_);
+    this.mediaManager_.onMetadataLoaded.bind(this.mediaManager_);
   this.mediaManager_.onMetadataLoaded = this.onMetadataLoaded_.bind(this);
 
   /**
@@ -313,7 +313,7 @@ sampleplayer.CastPlayer = function(element) {
    * @private {?function(cast.receiver.MediaManager.Event)}
    */
   this.onStopOrig_ =
-      this.mediaManager_.onStop.bind(this.mediaManager_);
+    this.mediaManager_.onStop.bind(this.mediaManager_);
   this.mediaManager_.onStop = this.onStop_.bind(this);
 
   /**
@@ -321,7 +321,7 @@ sampleplayer.CastPlayer = function(element) {
    * @private {?function(!cast.receiver.MediaManager.LoadInfo)}
    */
   this.onLoadMetadataErrorOrig_ =
-      this.mediaManager_.onLoadMetadataError.bind(this.mediaManager_);
+    this.mediaManager_.onLoadMetadataError.bind(this.mediaManager_);
   this.mediaManager_.onLoadMetadataError = this.onLoadMetadataError_.bind(this);
 
   /**
@@ -329,11 +329,11 @@ sampleplayer.CastPlayer = function(element) {
    * @private {?function(!Object)}
    */
   this.onErrorOrig_ =
-      this.mediaManager_.onError.bind(this.mediaManager_);
+    this.mediaManager_.onError.bind(this.mediaManager_);
   this.mediaManager_.onError = this.onError_.bind(this);
 
   this.mediaManager_.customizedStatusCallback =
-      this.customizedStatusCallback_.bind(this);
+    this.customizedStatusCallback_.bind(this);
 
   this.mediaManager_.onPreload = this.onPreload_.bind(this);
   this.mediaManager_.onCancelPreload = this.onCancelPreload_.bind(this);
@@ -463,7 +463,7 @@ sampleplayer.DISABLE_DEBUG_ = false;
  * @throws {Error} If given class cannot be found.
  * @private
  */
-sampleplayer.CastPlayer.prototype.getElementByClass_ = function(className) {
+sampleplayer.CastPlayer.prototype.getElementByClass_ = function (className) {
   var element = this.element_.querySelector(className);
   if (element) {
     return element;
@@ -479,7 +479,7 @@ sampleplayer.CastPlayer.prototype.getElementByClass_ = function(className) {
  * @return {HTMLMediaElement} The media element.
  * @export
  */
-sampleplayer.CastPlayer.prototype.getMediaElement = function() {
+sampleplayer.CastPlayer.prototype.getMediaElement = function () {
   return this.mediaElement_;
 };
 
@@ -490,7 +490,7 @@ sampleplayer.CastPlayer.prototype.getMediaElement = function() {
  * @return {cast.receiver.MediaManager} The media manager.
  * @export
  */
-sampleplayer.CastPlayer.prototype.getMediaManager = function() {
+sampleplayer.CastPlayer.prototype.getMediaManager = function () {
   return this.mediaManager_;
 };
 
@@ -501,7 +501,7 @@ sampleplayer.CastPlayer.prototype.getMediaManager = function() {
  * @return {cast.player.api.Player} The current MPL player.
  * @export
  */
-sampleplayer.CastPlayer.prototype.getPlayer = function() {
+sampleplayer.CastPlayer.prototype.getPlayer = function () {
   return this.player_;
 };
 
@@ -511,7 +511,7 @@ sampleplayer.CastPlayer.prototype.getPlayer = function() {
  *
  * @export
  */
-sampleplayer.CastPlayer.prototype.start = function() {
+sampleplayer.CastPlayer.prototype.start = function () {
   this.receiverManager_.start();
 };
 
@@ -524,7 +524,7 @@ sampleplayer.CastPlayer.prototype.start = function() {
  * @return {boolean} Whether the media can be preloaded.
  * @export
  */
-sampleplayer.CastPlayer.prototype.preload = function(mediaInformation) {
+sampleplayer.CastPlayer.prototype.preload = function (mediaInformation) {
   this.log_('preload');
   // For video formats that cannot be preloaded (mp4...), display preview UI.
   if (sampleplayer.canDisplayPreview_(mediaInformation || {})) {
@@ -555,7 +555,7 @@ sampleplayer.CastPlayer.prototype.preload = function(mediaInformation) {
  * @param {boolean} show whether player is showing preview mode metadata
  * @export
  */
-sampleplayer.CastPlayer.prototype.showPreviewModeMetadata = function(show) {
+sampleplayer.CastPlayer.prototype.showPreviewModeMetadata = function (show) {
   this.element_.setAttribute('preview-mode', show.toString());
 };
 
@@ -566,7 +566,7 @@ sampleplayer.CastPlayer.prototype.showPreviewModeMetadata = function(show) {
  *     asset media information.
  * @private
  */
-sampleplayer.CastPlayer.prototype.showPreviewMode_ = function(mediaInformation) {
+sampleplayer.CastPlayer.prototype.showPreviewMode_ = function (mediaInformation) {
   this.displayPreviewMode_ = true;
   this.loadPreviewModeMetadata_(mediaInformation);
   this.showPreviewModeMetadata(true);
@@ -578,7 +578,7 @@ sampleplayer.CastPlayer.prototype.showPreviewMode_ = function(mediaInformation) 
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.hidePreviewMode_ = function() {
+sampleplayer.CastPlayer.prototype.hidePreviewMode_ = function () {
   this.showPreviewModeMetadata(false);
   this.displayPreviewMode_ = false;
 };
@@ -592,7 +592,7 @@ sampleplayer.CastPlayer.prototype.hidePreviewMode_ = function() {
  * @return {boolean} Whether the video can be preloaded.
  * @private
  */
-sampleplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
+sampleplayer.CastPlayer.prototype.preloadVideo_ = function (mediaInformation) {
   this.log_('preloadVideo_');
   var self = this;
   var url = mediaInformation.contentId;
@@ -605,7 +605,7 @@ sampleplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
     'url': url,
     'mediaElement': self.mediaElement_
   });
-  host.onError = function() {
+  host.onError = function () {
     self.preloadPlayer_.unload();
     self.preloadPlayer_ = null;
     self.showPreviewModeMetadata(false);
@@ -623,14 +623,14 @@ sampleplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
  * @export
  */
-sampleplayer.CastPlayer.prototype.load = function(info) {
+sampleplayer.CastPlayer.prototype.load = function (info) {
   this.log_('onLoad_');
 
   clearTimeout(this.idleTimerId_);
   var self = this;
   self.mediaElement_2.style.display = 'none';
 
-  
+
   var media = info.message.media || {};
   var contentType = media.contentType;
   var playerType = sampleplayer.getType_(media);
@@ -659,7 +659,7 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
     self.loadMetadata_(media);
     self.showPreviewModeMetadata(false);
     self.displayPreviewMode_ = false;
-    sampleplayer.preload_(media, function() {
+    sampleplayer.preload_(media, function () {
       self.log_('preloaded=' + preloaded);
       if (preloaded) {
         // Data is ready to play so transiton directly to playing.
@@ -670,7 +670,7 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
         self.deferPlay_(0);
         self.playerAutoPlay_ = false;
       } else {
-        sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function() {
+        sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_, function () {
           self.setState_(sampleplayer.State.LOADING, false);
           // Only send load completed after we reach this point so the media
           // manager state is still loading and the sender can't send any PLAY
@@ -696,7 +696,7 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
  * @private
  */
-sampleplayer.CastPlayer.prototype.maybeSendLoadCompleted_ = function(info) {
+sampleplayer.CastPlayer.prototype.maybeSendLoadCompleted_ = function (info) {
   if (!this.playerReady_) {
     this.log_('Deferring load response, player not ready');
   } else if (!this.metadataLoaded_) {
@@ -712,7 +712,7 @@ sampleplayer.CastPlayer.prototype.maybeSendLoadCompleted_ = function(info) {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.resetMediaElement_ = function() {
+sampleplayer.CastPlayer.prototype.resetMediaElement_ = function () {
   this.log_('resetMediaElement_');
   if (this.player_) {
     this.player_.unload();
@@ -728,7 +728,7 @@ sampleplayer.CastPlayer.prototype.resetMediaElement_ = function() {
  * @param {!cast.receiver.media.MediaInformation} media The media.
  * @private
  */
-sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
+sampleplayer.CastPlayer.prototype.loadMetadata_ = function (media) {
   this.log_('loadMetadata_');
   if (!sampleplayer.isCastForAudioDevice_()) {
     var metadata = media.metadata || {};
@@ -753,7 +753,7 @@ sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
  * @param {!cast.receiver.media.MediaInformation} media The media.
  * @private
  */
-sampleplayer.CastPlayer.prototype.loadPreviewModeMetadata_ = function(media) {
+sampleplayer.CastPlayer.prototype.loadPreviewModeMetadata_ = function (media) {
   this.log_('loadPreviewModeMetadata_');
   if (!sampleplayer.isCastForAudioDevice_()) {
     var metadata = media.metadata || {};
@@ -780,7 +780,7 @@ sampleplayer.CastPlayer.prototype.loadPreviewModeMetadata_ = function(media) {
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
  * @private
  */
-sampleplayer.CastPlayer.prototype.letPlayerHandleAutoPlay_ = function(info) {
+sampleplayer.CastPlayer.prototype.letPlayerHandleAutoPlay_ = function (info) {
   this.log_('letPlayerHandleAutoPlay_: ' + info.message.autoplay);
   var autoplay = info.message.autoplay;
   info.message.autoplay = false;
@@ -795,7 +795,7 @@ sampleplayer.CastPlayer.prototype.letPlayerHandleAutoPlay_ = function(info) {
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
  * @private
  */
-sampleplayer.CastPlayer.prototype.loadAudio_ = function(info) {
+sampleplayer.CastPlayer.prototype.loadAudio_ = function (info) {
   this.log_('loadAudio_');
   this.letPlayerHandleAutoPlay_(info);
   this.loadDefault_(info);
@@ -809,7 +809,7 @@ sampleplayer.CastPlayer.prototype.loadAudio_ = function(info) {
  * @return {boolean} Whether the media was preloaded
  * @private
  */
-sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
+sampleplayer.CastPlayer.prototype.loadVideo_ = function (info) {
   this.log_('loadVideo_');
   var self = this;
   var protocolFunc = null;
@@ -821,9 +821,9 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
   if (!protocolFunc) {
     this.log_('loadVideo_: using MediaElement');
     this.mediaElement_.addEventListener('stalled', this.bufferingHandler_,
-        false);
+      false);
     this.mediaElement_.addEventListener('waiting', this.bufferingHandler_,
-        false);
+      false);
   } else {
     this.log_('loadVideo_: using Media Player Library');
     // When MPL is used, buffering status should be detected by
@@ -833,7 +833,7 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
 
     // If we have not preloaded or the content preloaded does not match the
     // content that needs to be loaded, perform a full load
-    var loadErrorCallback = function() {
+    var loadErrorCallback = function () {
       // unload player and trigger error event on media element
       if (self.player_) {
         self.resetMediaElement_();
@@ -841,7 +841,7 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
       }
     };
     if (!this.preloadPlayer_ || (this.preloadPlayer_.getHost &&
-        this.preloadPlayer_.getHost().url != url)) {
+      this.preloadPlayer_.getHost().url != url)) {
       if (this.preloadPlayer_) {
         this.preloadPlayer_.unload();
         this.preloadPlayer_ = null;
@@ -878,22 +878,22 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
  * @private
  */
 sampleplayer.CastPlayer.prototype.loadMediaManagerInfo_ =
-    function(info, loadOnlyTracksMetadata) {
+  function (info, loadOnlyTracksMetadata) {
 
-  if (loadOnlyTracksMetadata) {
-    // In the case of media that uses MPL we do not
-    // use the media manager default onLoad API but we still need to load
-    // the tracks metadata information into media manager (so tracks can be
-    // managed and properly reported in the status messages) if they are
-    // provided in the info object (side loaded).
-    this.maybeLoadSideLoadedTracksMetadata_(info);
-  } else {
-    // Media supported by mediamanager, use the media manager default onLoad API
-    // to load the media, tracks metadata and, if the tracks are vtt the media
-    // manager will process the cues too.
-    this.loadDefault_(info);
-  }
-};
+    if (loadOnlyTracksMetadata) {
+      // In the case of media that uses MPL we do not
+      // use the media manager default onLoad API but we still need to load
+      // the tracks metadata information into media manager (so tracks can be
+      // managed and properly reported in the status messages) if they are
+      // provided in the info object (side loaded).
+      this.maybeLoadSideLoadedTracksMetadata_(info);
+    } else {
+      // Media supported by mediamanager, use the media manager default onLoad API
+      // to load the media, tracks metadata and, if the tracks are vtt the media
+      // manager will process the cues too.
+      this.loadDefault_(info);
+    }
+  };
 
 
 /**
@@ -903,38 +903,38 @@ sampleplayer.CastPlayer.prototype.loadMediaManagerInfo_ =
  * @private
  */
 sampleplayer.CastPlayer.prototype.readSideLoadedTextTrackType_ =
-    function(info) {
-  if (!info.message || !info.message.media || !info.message.media.tracks) {
-    return;
-  }
-  for (var i = 0; i < info.message.media.tracks.length; i++) {
-    var oldTextTrackType = this.textTrackType_;
-    if (info.message.media.tracks[i].type !=
+  function (info) {
+    if (!info.message || !info.message.media || !info.message.media.tracks) {
+      return;
+    }
+    for (var i = 0; i < info.message.media.tracks.length; i++) {
+      var oldTextTrackType = this.textTrackType_;
+      if (info.message.media.tracks[i].type !=
         cast.receiver.media.TrackType.TEXT) {
-      continue;
-    }
-    if (this.isTtmlTrack_(info.message.media.tracks[i])) {
-      this.textTrackType_ =
+        continue;
+      }
+      if (this.isTtmlTrack_(info.message.media.tracks[i])) {
+        this.textTrackType_ =
           sampleplayer.TextTrackType.SIDE_LOADED_TTML;
-    } else if (this.isVttTrack_(info.message.media.tracks[i])) {
-      this.textTrackType_ =
+      } else if (this.isVttTrack_(info.message.media.tracks[i])) {
+        this.textTrackType_ =
           sampleplayer.TextTrackType.SIDE_LOADED_VTT;
-    } else {
-      this.log_('Unsupported side loaded text track types');
-      this.textTrackType_ =
+      } else {
+        this.log_('Unsupported side loaded text track types');
+        this.textTrackType_ =
           sampleplayer.TextTrackType.SIDE_LOADED_UNSUPPORTED;
-      break;
-    }
-    // We do not support text tracks with different caption types for a single
-    // piece of content
-    if (oldTextTrackType && oldTextTrackType != this.textTrackType_) {
-      this.log_('Load has inconsistent text track types');
-      this.textTrackType_ =
+        break;
+      }
+      // We do not support text tracks with different caption types for a single
+      // piece of content
+      if (oldTextTrackType && oldTextTrackType != this.textTrackType_) {
+        this.log_('Load has inconsistent text track types');
+        this.textTrackType_ =
           sampleplayer.TextTrackType.SIDE_LOADED_UNSUPPORTED;
-      break;
+        break;
+      }
     }
-  }
-};
+  };
 
 
 /**
@@ -945,21 +945,21 @@ sampleplayer.CastPlayer.prototype.readSideLoadedTextTrackType_ =
  * @private
  */
 sampleplayer.CastPlayer.prototype.maybeLoadSideLoadedTracksMetadata_ =
-    function(info) {
-  // If there are no tracks we will not load the tracks information here as
-  // we are likely in a embedded captions scenario and the information will
-  // be loaded in the onMetadataLoaded_ callback
-  if (!info.message || !info.message.media || !info.message.media.tracks ||
+  function (info) {
+    // If there are no tracks we will not load the tracks information here as
+    // we are likely in a embedded captions scenario and the information will
+    // be loaded in the onMetadataLoaded_ callback
+    if (!info.message || !info.message.media || !info.message.media.tracks ||
       info.message.media.tracks.length == 0) {
-    return;
-  }
-  var tracksInfo = /** @type {cast.receiver.media.TracksInfo} **/ ({
-    tracks: info.message.media.tracks,
-    activeTrackIds: info.message.activeTrackIds,
-    textTrackStyle: info.message.media.textTrackStyle
-  });
-  this.mediaManager_.loadTracksInfo(tracksInfo);
-};
+      return;
+    }
+    var tracksInfo = /** @type {cast.receiver.media.TracksInfo} **/ ({
+      tracks: info.message.media.tracks,
+      activeTrackIds: info.message.activeTrackIds,
+      textTrackStyle: info.message.media.textTrackStyle
+    });
+    this.mediaManager_.loadTracksInfo(tracksInfo);
+  };
 
 
 /**
@@ -971,17 +971,17 @@ sampleplayer.CastPlayer.prototype.maybeLoadSideLoadedTracksMetadata_ =
  * @private
  */
 sampleplayer.CastPlayer.prototype.maybeLoadEmbeddedTracksMetadata_ =
-    function(info) {
-  if (!info.message || !info.message.media) {
-    return;
-  }
-  var tracksInfo = this.readInBandTracksInfo_();
-  if (tracksInfo) {
-    this.textTrackType_ = sampleplayer.TextTrackType.EMBEDDED;
-    tracksInfo.textTrackStyle = info.message.media.textTrackStyle;
-    this.mediaManager_.loadTracksInfo(tracksInfo);
-  }
-};
+  function (info) {
+    if (!info.message || !info.message.media) {
+      return;
+    }
+    var tracksInfo = this.readInBandTracksInfo_();
+    if (tracksInfo) {
+      this.textTrackType_ = sampleplayer.TextTrackType.EMBEDDED;
+      tracksInfo.textTrackStyle = info.message.media.textTrackStyle;
+      this.mediaManager_.loadTracksInfo(tracksInfo);
+    }
+  };
 
 
 /**
@@ -992,37 +992,37 @@ sampleplayer.CastPlayer.prototype.maybeLoadEmbeddedTracksMetadata_ =
  * @private
  */
 sampleplayer.CastPlayer.prototype.processTtmlCues_ =
-    function(activeTrackIds, tracks) {
-  if (activeTrackIds.length == 0) {
-    return;
-  }
-  // If there is an active text track, that is using ttml, apply it
-  for (var i = 0; i < tracks.length; i++) {
-    var contains = false;
-    for (var j = 0; j < activeTrackIds.length; j++) {
-      if (activeTrackIds[j] == tracks[i].trackId) {
-        contains = true;
-        break;
+  function (activeTrackIds, tracks) {
+    if (activeTrackIds.length == 0) {
+      return;
+    }
+    // If there is an active text track, that is using ttml, apply it
+    for (var i = 0; i < tracks.length; i++) {
+      var contains = false;
+      for (var j = 0; j < activeTrackIds.length; j++) {
+        if (activeTrackIds[j] == tracks[i].trackId) {
+          contains = true;
+          break;
+        }
       }
-    }
-    if (!contains ||
+      if (!contains ||
         !this.isTtmlTrack_(tracks[i])) {
-      continue;
-    }
-    if (!this.player_) {
-      // We do not have a player, it means we need to create it to support
-      // loading ttml captions
-      var host = new cast.player.api.Host({
-        'url': '',
-        'mediaElement': this.mediaElement_
-      });
-      this.protocol_ = null;
-      this.player_ = new cast.player.api.Player(host);
-    }
-    this.player_.enableCaptions(
+        continue;
+      }
+      if (!this.player_) {
+        // We do not have a player, it means we need to create it to support
+        // loading ttml captions
+        var host = new cast.player.api.Host({
+          'url': '',
+          'mediaElement': this.mediaElement_
+        });
+        this.protocol_ = null;
+        this.player_ = new cast.player.api.Player(host);
+      }
+      this.player_.enableCaptions(
         true, cast.player.api.CaptionsType.TTML, tracks[i].trackContentId);
-  }
-};
+    }
+  };
 
 
 /**
@@ -1032,10 +1032,10 @@ sampleplayer.CastPlayer.prototype.processTtmlCues_ =
  * @return {boolean} Whether the track is in TTML format.
  * @private
  */
-sampleplayer.CastPlayer.prototype.isTtmlTrack_ = function(track) {
+sampleplayer.CastPlayer.prototype.isTtmlTrack_ = function (track) {
   return this.isKnownTextTrack_(track,
-      sampleplayer.TextTrackType.SIDE_LOADED_TTML,
-      sampleplayer.CaptionsMimeType.TTML);
+    sampleplayer.TextTrackType.SIDE_LOADED_TTML,
+    sampleplayer.CaptionsMimeType.TTML);
 };
 
 
@@ -1046,10 +1046,10 @@ sampleplayer.CastPlayer.prototype.isTtmlTrack_ = function(track) {
  * @return {boolean} Whether the track is in VTT format.
  * @private
  */
-sampleplayer.CastPlayer.prototype.isVttTrack_ = function(track) {
+sampleplayer.CastPlayer.prototype.isVttTrack_ = function (track) {
   return this.isKnownTextTrack_(track,
-      sampleplayer.TextTrackType.SIDE_LOADED_VTT,
-      sampleplayer.CaptionsMimeType.VTT);
+    sampleplayer.TextTrackType.SIDE_LOADED_VTT,
+    sampleplayer.CaptionsMimeType.VTT);
 };
 
 
@@ -1064,22 +1064,22 @@ sampleplayer.CastPlayer.prototype.isVttTrack_ = function(track) {
  * @private
  */
 sampleplayer.CastPlayer.prototype.isKnownTextTrack_ =
-    function(track, textTrackType, mimeType) {
-  if (!track) {
-    return false;
-  }
-  // The sampleplayer.TextTrackType values match the
-  // file extensions required
-  var fileExtension = textTrackType;
-  var trackContentId = track.trackContentId;
-  var trackContentType = track.trackContentType;
-  if ((trackContentId &&
-          sampleplayer.getExtension_(trackContentId) === fileExtension) ||
+  function (track, textTrackType, mimeType) {
+    if (!track) {
+      return false;
+    }
+    // The sampleplayer.TextTrackType values match the
+    // file extensions required
+    var fileExtension = textTrackType;
+    var trackContentId = track.trackContentId;
+    var trackContentType = track.trackContentType;
+    if ((trackContentId &&
+      sampleplayer.getExtension_(trackContentId) === fileExtension) ||
       (trackContentType && trackContentType.indexOf(mimeType) === 0)) {
-    return true;
-  }
-  return false;
-};
+      return true;
+    }
+    return false;
+  };
 
 
 /**
@@ -1089,26 +1089,26 @@ sampleplayer.CastPlayer.prototype.isKnownTextTrack_ =
  * @private
  */
 sampleplayer.CastPlayer.prototype.processInBandTracks_ =
-    function(activeTrackIds) {
-  var protocol = this.player_.getStreamingProtocol();
-  var streamCount = protocol.getStreamCount();
-  for (var i = 0; i < streamCount; i++) {
-    var trackId = i + 1;
-    var isActive = false;
-    for (var j = 0; j < activeTrackIds.length; j++) {
-      if (activeTrackIds[j] == trackId) {
-        isActive = true;
-        break;
+  function (activeTrackIds) {
+    var protocol = this.player_.getStreamingProtocol();
+    var streamCount = protocol.getStreamCount();
+    for (var i = 0; i < streamCount; i++) {
+      var trackId = i + 1;
+      var isActive = false;
+      for (var j = 0; j < activeTrackIds.length; j++) {
+        if (activeTrackIds[j] == trackId) {
+          isActive = true;
+          break;
+        }
+      }
+      var wasActive = protocol.isStreamEnabled(i);
+      if (isActive && !wasActive) {
+        protocol.enableStream(i, true);
+      } else if (!isActive && wasActive) {
+        protocol.enableStream(i, false);
       }
     }
-    var wasActive = protocol.isStreamEnabled(i);
-    if (isActive && !wasActive) {
-      protocol.enableStream(i, true);
-    } else if (!isActive && wasActive) {
-      protocol.enableStream(i, false);
-    }
-  }
-};
+  };
 
 
 /**
@@ -1117,7 +1117,7 @@ sampleplayer.CastPlayer.prototype.processInBandTracks_ =
  * @return {cast.receiver.media.TracksInfo} The tracks info.
  * @private
  */
-sampleplayer.CastPlayer.prototype.readInBandTracksInfo_ = function() {
+sampleplayer.CastPlayer.prototype.readInBandTracksInfo_ = function () {
   var protocol = this.player_ ? this.player_.getStreamingProtocol() : null;
   if (!protocol) {
     return null;
@@ -1134,15 +1134,15 @@ sampleplayer.CastPlayer.prototype.readInBandTracksInfo_ = function() {
     var mimeType = streamInfo.mimeType;
     var track;
     if (mimeType.indexOf(sampleplayer.TrackType.TEXT) === 0 ||
-        mimeType === sampleplayer.CaptionsMimeType.TTML) {
+      mimeType === sampleplayer.CaptionsMimeType.TTML) {
       track = new cast.receiver.media.Track(
-          trackId, cast.receiver.media.TrackType.TEXT);
+        trackId, cast.receiver.media.TrackType.TEXT);
     } else if (mimeType.indexOf(sampleplayer.TrackType.VIDEO) === 0) {
       track = new cast.receiver.media.Track(
-          trackId, cast.receiver.media.TrackType.VIDEO);
+        trackId, cast.receiver.media.TrackType.VIDEO);
     } else if (mimeType.indexOf(sampleplayer.TrackType.AUDIO) === 0) {
       track = new cast.receiver.media.Track(
-          trackId, cast.receiver.media.TrackType.AUDIO);
+        trackId, cast.receiver.media.TrackType.AUDIO);
     }
     if (track) {
       track.name = streamInfo.name;
@@ -1168,11 +1168,11 @@ sampleplayer.CastPlayer.prototype.readInBandTracksInfo_ = function() {
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load request info.
  * @private
  */
-sampleplayer.CastPlayer.prototype.loadDefault_ = function(info) {
+sampleplayer.CastPlayer.prototype.loadDefault_ = function (info) {
   this.onLoadOrig_(new cast.receiver.MediaManager.Event(
-      cast.receiver.MediaManager.EventType.LOAD,
-      /** @type {!cast.receiver.MediaManager.RequestData} */ (info.message),
-      info.senderId));
+    cast.receiver.MediaManager.EventType.LOAD,
+      /** @type {!cast.receiver.MediaManager.RequestData} */(info.message),
+    info.senderId));
 };
 
 
@@ -1182,12 +1182,12 @@ sampleplayer.CastPlayer.prototype.loadDefault_ = function(info) {
  * @param {number} t the time in milliseconds before the player goes idle
  * @private
  */
-sampleplayer.CastPlayer.prototype.setIdleTimeout_ = function(t) {
+sampleplayer.CastPlayer.prototype.setIdleTimeout_ = function (t) {
   this.log_('setIdleTimeout_: ' + t);
   var self = this;
   clearTimeout(this.idleTimerId_);
   if (t) {
-    this.idleTimerId_ = setTimeout(function() {
+    this.idleTimerId_ = setTimeout(function () {
       self.receiverManager_.stop();
     }, t);
   }
@@ -1201,7 +1201,7 @@ sampleplayer.CastPlayer.prototype.setIdleTimeout_ = function(t) {
  * @param {boolean} isLiveStream whether player is showing live content
  * @private
  */
-sampleplayer.CastPlayer.prototype.setType_ = function(type, isLiveStream) {
+sampleplayer.CastPlayer.prototype.setType_ = function (type, isLiveStream) {
   this.log_('setType_: ' + type);
   this.type_ = type;
   this.element_.setAttribute('type', type);
@@ -1214,7 +1214,7 @@ sampleplayer.CastPlayer.prototype.setType_ = function(type, isLiveStream) {
   } else {
     // if we are in 'audio' mode float metadata around the screen to
     // prevent screen burn
-    this.burnInPreventionIntervalId_ = setInterval(function() {
+    this.burnInPreventionIntervalId_ = setInterval(function () {
       overlay.style.marginBottom = Math.round(Math.random() * 100) + 'px';
       overlay.style.marginLeft = Math.round(Math.random() * 600) + 'px';
     }, sampleplayer.BURN_IN_TIMEOUT);
@@ -1230,15 +1230,15 @@ sampleplayer.CastPlayer.prototype.setType_ = function(type, isLiveStream) {
  * @param {number=} opt_delay the amount of time (in ms) to wait
  * @private
  */
-sampleplayer.CastPlayer.prototype.setState_ = function(
-    state, opt_crossfade, opt_delay) {
+sampleplayer.CastPlayer.prototype.setState_ = function (
+  state, opt_crossfade, opt_delay) {
   this.log_('setState_: state=' + state + ', crossfade=' + opt_crossfade +
-      ', delay=' + opt_delay);
+    ', delay=' + opt_delay);
   var self = this;
   self.lastStateTransitionTime_ = Date.now();
   clearTimeout(self.delay_);
   if (opt_delay) {
-    var func = function() { self.setState_(state, opt_crossfade); };
+    var func = function () { self.setState_(state, opt_crossfade); };
     self.delay_ = setTimeout(func, opt_delay);
   } else {
     if (!opt_crossfade) {
@@ -1249,17 +1249,17 @@ sampleplayer.CastPlayer.prototype.setState_ = function(
     } else {
       var stateTransitionTime = self.lastStateTransitionTime_;
       sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
-          function() {
-            // In the case of a crossfade transition, the transition will be completed
-            // even if setState is called during the transition.  We need to be sure
-            // that the requested state is ignored as the latest setState call should
-            // take precedence.
-            if (stateTransitionTime < self.lastStateTransitionTime_) {
-              self.log_('discarded obsolete deferred state(' + state + ').');
-              return;
-            }
-            self.setState_(state, false);
-          });
+        function () {
+          // In the case of a crossfade transition, the transition will be completed
+          // even if setState is called during the transition.  We need to be sure
+          // that the requested state is ignored as the latest setState call should
+          // take precedence.
+          if (stateTransitionTime < self.lastStateTransitionTime_) {
+            self.log_('discarded obsolete deferred state(' + state + ').');
+            return;
+          }
+          self.setState_(state, false);
+        });
     }
   }
 };
@@ -1270,7 +1270,7 @@ sampleplayer.CastPlayer.prototype.setState_ = function(
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.updateApplicationState_ = function() {
+sampleplayer.CastPlayer.prototype.updateApplicationState_ = function () {
   this.log_('updateApplicationState_');
   if (this.mediaManager_) {
     var idle = this.state_ === sampleplayer.State.IDLE;
@@ -1290,7 +1290,7 @@ sampleplayer.CastPlayer.prototype.updateApplicationState_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onReady_ = function() {
+sampleplayer.CastPlayer.prototype.onReady_ = function () {
   this.log_('onReady');
   this.setState_(sampleplayer.State.IDLE, false);
 };
@@ -1302,13 +1302,13 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
  * @param {cast.receiver.CastReceiverManager.SenderDisconnectedEvent} event
  * @private
  */
-sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
+sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function (event) {
   this.log_('onSenderDisconnected');
   // When the last or only sender is connected to a receiver,
   // tapping Disconnect stops the app running on the receiver.
   if (this.receiverManager_.getSenders().length === 0 &&
-      event.reason ===
-          cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
+    event.reason ===
+    cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
     this.receiverManager_.stop();
   }
 };
@@ -1322,14 +1322,14 @@ sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
  * @param {!Object} error
  * @private
  */
-sampleplayer.CastPlayer.prototype.onError_ = function(error) {
+sampleplayer.CastPlayer.prototype.onError_ = function (error) {
   this.log_('onError');
   var self = this;
   sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
-      function() {
-        self.setState_(sampleplayer.State.IDLE, true);
-        self.onErrorOrig_(error);
-      });
+    function () {
+      self.setState_(sampleplayer.State.IDLE, true);
+      self.onErrorOrig_(error);
+    });
 };
 
 
@@ -1339,10 +1339,10 @@ sampleplayer.CastPlayer.prototype.onError_ = function(error) {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
+sampleplayer.CastPlayer.prototype.onBuffering_ = function () {
   this.log_('onBuffering[readyState=' + this.mediaElement_.readyState + ']');
   if (this.state_ === sampleplayer.State.PLAYING &&
-      this.mediaElement_.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
+    this.mediaElement_.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
     this.setState_(sampleplayer.State.BUFFERING, false);
   }
 };
@@ -1354,7 +1354,8 @@ sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
+sampleplayer.CastPlayer.prototype.change = false;
+sampleplayer.CastPlayer.prototype.onPlaying_ = function () {
   var self = this;
   this.log_('onPlaying');
   this.cancelDeferredPlay_('media is already playing');
@@ -1362,16 +1363,18 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   var isLoading = this.state_ == sampleplayer.State.LOADING;
   var crossfade = isLoading && !isAudio;
   this.setState_(sampleplayer.State.PLAYING, crossfade);
-  setTimeout(function(){
-    var src = self.mediaElement_.src 
-    self.mediaElement_.pause()
-    self.mediaElement_.src = '';
+  if (!sampleplayer.CastPlayer.prototype.change)
+    setTimeout(function () {
+      sampleplayer.CastPlayer.prototype.change = true;
+      var src = self.mediaElement_.src
+      self.mediaElement_.pause()
+      self.mediaElement_.src = '';
       self.mediaElement_.style.display = 'none';
       self.mediaElement_2.src = src;
       self.mediaElement_2.style.display = 'block';
       self.mediaElement_2.play();
       self.mediaManager_.setMediaElement(self.mediaElement_2);
-  },10000)
+    }, 10000)
 };
 
 
@@ -1382,7 +1385,7 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onPause_ = function() {
+sampleplayer.CastPlayer.prototype.onPause_ = function () {
   this.log_('onPause');
   this.cancelDeferredPlay_('media is paused');
   var isIdle = this.state_ === sampleplayer.State.IDLE;
@@ -1408,14 +1411,14 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.customizedStatusCallback_ = function(
-    mediaStatus) {
+sampleplayer.CastPlayer.prototype.customizedStatusCallback_ = function (
+  mediaStatus) {
   this.log_('customizedStatusCallback_: playerState=' +
-      mediaStatus.playerState + ', this.state_=' + this.state_);
+    mediaStatus.playerState + ', this.state_=' + this.state_);
   // TODO: remove this workaround once MediaManager detects buffering
   // immediately.
   if (mediaStatus.playerState === cast.receiver.media.PlayerState.PAUSED &&
-      this.state_ === sampleplayer.State.BUFFERING) {
+    this.state_ === sampleplayer.State.BUFFERING) {
     mediaStatus.playerState = cast.receiver.media.PlayerState.BUFFERING;
   }
   return mediaStatus;
@@ -1429,15 +1432,15 @@ sampleplayer.CastPlayer.prototype.customizedStatusCallback_ = function(
  * @param {cast.receiver.MediaManager.Event} event The stop event.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onStop_ = function(event) {
+sampleplayer.CastPlayer.prototype.onStop_ = function (event) {
   this.log_('onStop');
   this.cancelDeferredPlay_('media is stopped');
   var self = this;
   sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
-      function() {
-        self.setState_(sampleplayer.State.IDLE, false);
-        self.onStopOrig_(event);
-      });
+    function () {
+      self.setState_(sampleplayer.State.IDLE, false);
+      self.onStopOrig_(event);
+    });
 };
 
 
@@ -1446,7 +1449,7 @@ sampleplayer.CastPlayer.prototype.onStop_ = function(event) {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onEnded_ = function() {
+sampleplayer.CastPlayer.prototype.onEnded_ = function () {
   this.log_('onEnded');
   this.setState_(sampleplayer.State.IDLE, true);
   this.hidePreviewMode_();
@@ -1458,7 +1461,7 @@ sampleplayer.CastPlayer.prototype.onEnded_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onAbort_ = function() {
+sampleplayer.CastPlayer.prototype.onAbort_ = function () {
   this.log_('onAbort');
   this.setState_(sampleplayer.State.IDLE, true);
   this.hidePreviewMode_();
@@ -1471,10 +1474,10 @@ sampleplayer.CastPlayer.prototype.onAbort_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onProgress_ = function() {
+sampleplayer.CastPlayer.prototype.onProgress_ = function () {
   // if we were previously buffering, update state to playing
   if (this.state_ === sampleplayer.State.BUFFERING ||
-      this.state_ === sampleplayer.State.LOADING) {
+    this.state_ === sampleplayer.State.LOADING) {
     this.setState_(sampleplayer.State.PLAYING, false);
   }
   this.updateProgress_();
@@ -1486,7 +1489,7 @@ sampleplayer.CastPlayer.prototype.onProgress_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
+sampleplayer.CastPlayer.prototype.updateProgress_ = function () {
   // Update the time and the progress bar
   if (!sampleplayer.isCastForAudioDevice_()) {
     var curTime = this.mediaElement_.currentTime;
@@ -1499,7 +1502,7 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       this.progressBarThumbElement_.style.left = pct + '%';
       // Handle preview mode
       if (this.displayPreviewMode_) {
-        this.previewModeTimerElement_.innerText = "" + Math.round(totalTime-curTime);
+        this.previewModeTimerElement_.innerText = "" + Math.round(totalTime - curTime);
       }
     }
   }
@@ -1511,7 +1514,7 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onSeekStart_ = function() {
+sampleplayer.CastPlayer.prototype.onSeekStart_ = function () {
   this.log_('onSeekStart');
   clearTimeout(this.seekingTimeoutId_);
   this.element_.classList.add('seeking');
@@ -1523,11 +1526,11 @@ sampleplayer.CastPlayer.prototype.onSeekStart_ = function() {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onSeekEnd_ = function() {
+sampleplayer.CastPlayer.prototype.onSeekEnd_ = function () {
   this.log_('onSeekEnd');
   clearTimeout(this.seekingTimeoutId_);
   this.seekingTimeoutId_ = sampleplayer.addClassWithTimeout_(this.element_,
-      'seeking', 3000);
+    'seeking', 3000);
 };
 
 
@@ -1541,7 +1544,7 @@ sampleplayer.CastPlayer.prototype.onSeekEnd_ = function() {
  *    Event fired when visibility of application is changed.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onVisibilityChanged_ = function(event) {
+sampleplayer.CastPlayer.prototype.onVisibilityChanged_ = function (event) {
   this.log_('onVisibilityChanged');
   if (!event.isVisible) {
     this.mediaElement_.pause();
@@ -1558,7 +1561,7 @@ sampleplayer.CastPlayer.prototype.onVisibilityChanged_ = function(event) {
  * @return {boolean} Whether the item can be preloaded.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onPreload_ = function(event) {
+sampleplayer.CastPlayer.prototype.onPreload_ = function (event) {
   this.log_('onPreload_');
   var loadRequestData =
       /** @type {!cast.receiver.MediaManager.LoadRequestData} */ (event.data);
@@ -1574,7 +1577,7 @@ sampleplayer.CastPlayer.prototype.onPreload_ = function(event) {
  * @return {boolean} Whether the item can be preloaded.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onCancelPreload_ = function(event) {
+sampleplayer.CastPlayer.prototype.onCancelPreload_ = function (event) {
   this.log_('onCancelPreload_');
   this.hidePreviewMode_();
   return true;
@@ -1588,12 +1591,12 @@ sampleplayer.CastPlayer.prototype.onCancelPreload_ = function(event) {
  * @param {cast.receiver.MediaManager.Event} event The load event.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onLoad_ = function(event) {
+sampleplayer.CastPlayer.prototype.onLoad_ = function (event) {
   this.log_('onLoad_');
   this.cancelDeferredPlay_('new media is loaded');
   this.load(new cast.receiver.MediaManager.LoadInfo(
-      /** @type {!cast.receiver.MediaManager.LoadRequestData} */ (event.data),
-      event.senderId));
+      /** @type {!cast.receiver.MediaManager.LoadRequestData} */(event.data),
+    event.senderId));
 };
 
 
@@ -1603,7 +1606,7 @@ sampleplayer.CastPlayer.prototype.onLoad_ = function(event) {
  * @param {!cast.receiver.MediaManager.Event} event The editTracksInfo event.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onEditTracksInfo_ = function(event) {
+sampleplayer.CastPlayer.prototype.onEditTracksInfo_ = function (event) {
   this.log_('onEditTracksInfo');
   this.onEditTracksInfoOrig_(event);
 
@@ -1621,7 +1624,7 @@ sampleplayer.CastPlayer.prototype.onEditTracksInfo_ = function(event) {
       this.player_.enableCaptions(false, cast.player.api.CaptionsType.TTML);
     }
     this.processTtmlCues_(event.data.activeTrackIds,
-        mediaInformation.tracks || []);
+      mediaInformation.tracks || []);
   } else if (type == sampleplayer.TextTrackType.EMBEDDED) {
     this.player_.enableCaptions(false);
     this.processInBandTracks_(event.data.activeTrackIds);
@@ -1637,7 +1640,7 @@ sampleplayer.CastPlayer.prototype.onEditTracksInfo_ = function(event) {
  * @param {!cast.receiver.MediaManager.LoadInfo} info The load information.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onMetadataLoaded_ = function(info) {
+sampleplayer.CastPlayer.prototype.onMetadataLoaded_ = function (info) {
   this.log_('onMetadataLoaded');
   this.onLoadSuccess_();
   // In the case of ttml and embedded captions we need to load the cues using
@@ -1645,11 +1648,11 @@ sampleplayer.CastPlayer.prototype.onMetadataLoaded_ = function(info) {
   this.readSideLoadedTextTrackType_(info);
 
   if (this.textTrackType_ ==
-      sampleplayer.TextTrackType.SIDE_LOADED_TTML &&
-      info.message && info.message.activeTrackIds && info.message.media &&
-      info.message.media.tracks) {
+    sampleplayer.TextTrackType.SIDE_LOADED_TTML &&
+    info.message && info.message.activeTrackIds && info.message.media &&
+    info.message.media.tracks) {
     this.processTtmlCues_(
-        info.message.activeTrackIds, info.message.media.tracks);
+      info.message.activeTrackIds, info.message.media.tracks);
   } else if (!this.textTrackType_) {
     // If we do not have a textTrackType, check if the tracks are embedded
     this.maybeLoadEmbeddedTracksMetadata_(info);
@@ -1669,14 +1672,14 @@ sampleplayer.CastPlayer.prototype.onMetadataLoaded_ = function(info) {
  *     associated with a LOAD event.
  * @private
  */
-sampleplayer.CastPlayer.prototype.onLoadMetadataError_ = function(event) {
+sampleplayer.CastPlayer.prototype.onLoadMetadataError_ = function (event) {
   this.log_('onLoadMetadataError_');
   var self = this;
   sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
-      function() {
-        self.setState_(sampleplayer.State.IDLE, true);
-        self.onLoadMetadataErrorOrig_(event);
-      });
+    function () {
+      self.setState_(sampleplayer.State.IDLE, true);
+      self.onLoadMetadataErrorOrig_(event);
+    });
 };
 
 
@@ -1686,7 +1689,7 @@ sampleplayer.CastPlayer.prototype.onLoadMetadataError_ = function(event) {
  * @param {string} cancelReason
  * @private
  */
-sampleplayer.CastPlayer.prototype.cancelDeferredPlay_ = function(cancelReason) {
+sampleplayer.CastPlayer.prototype.cancelDeferredPlay_ = function (cancelReason) {
   if (this.deferredPlayCallbackId_) {
     this.log_('Cancelled deferred playback: ' + cancelReason);
     clearTimeout(this.deferredPlayCallbackId_);
@@ -1701,10 +1704,10 @@ sampleplayer.CastPlayer.prototype.cancelDeferredPlay_ = function(cancelReason) {
  * @param {number} timeout In msec.
  * @private
  */
-sampleplayer.CastPlayer.prototype.deferPlay_ = function(timeout) {
+sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
   this.log_('Defering playback for ' + timeout + ' ms');
   var self = this;
-  this.deferredPlayCallbackId_ = setTimeout(function() {
+  this.deferredPlayCallbackId_ = setTimeout(function () {
     self.deferredPlayCallbackId_ = null;
     if (self.player_) {
       self.log_('Playing when enough data');
@@ -1722,14 +1725,14 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function(timeout) {
  *
  * @private
  */
-sampleplayer.CastPlayer.prototype.onLoadSuccess_ = function() {
+sampleplayer.CastPlayer.prototype.onLoadSuccess_ = function () {
   this.log_('onLoadSuccess');
   // we should have total time at this point, so update the label
   // and progress bar
   var totalTime = this.mediaElement_.duration;
   if (!isNaN(totalTime)) {
     this.totalTimeElement_.textContent =
-        sampleplayer.formatDuration_(totalTime);
+      sampleplayer.formatDuration_(totalTime);
   } else {
     this.totalTimeElement_.textContent = '';
     this.progressBarInnerElement_.style.width = '100%';
@@ -1745,7 +1748,7 @@ sampleplayer.CastPlayer.prototype.onLoadSuccess_ = function() {
  * @return {string|undefined} The image url.
  * @private
  */
-sampleplayer.getMediaImageUrl_ = function(media) {
+sampleplayer.getMediaImageUrl_ = function (media) {
   var metadata = media.metadata || {};
   var images = metadata['images'] || [];
   return images && images[0] && images[0]['url'];
@@ -1762,19 +1765,19 @@ sampleplayer.getMediaImageUrl_ = function(media) {
  *     The protocol function that corresponds to this media type.
  * @private
  */
-sampleplayer.getProtocolFunction_ = function(mediaInformation) {
+sampleplayer.getProtocolFunction_ = function (mediaInformation) {
   var url = mediaInformation.contentId;
   var type = mediaInformation.contentType || '';
   var path = sampleplayer.getPath_(url) || '';
   if (sampleplayer.getExtension_(path) === 'm3u8' ||
-          type === 'application/x-mpegurl' ||
-          type === 'application/vnd.apple.mpegurl') {
+    type === 'application/x-mpegurl' ||
+    type === 'application/vnd.apple.mpegurl') {
     return cast.player.api.CreateHlsStreamingProtocol;
   } else if (sampleplayer.getExtension_(path) === 'mpd' ||
-          type === 'application/dash+xml') {
+    type === 'application/dash+xml') {
     return cast.player.api.CreateDashStreamingProtocol;
   } else if (path.indexOf('.ism') > -1 ||
-          type === 'application/vnd.ms-sstr+xml') {
+    type === 'application/vnd.ms-sstr+xml') {
     return cast.player.api.CreateSmoothStreamingProtocol;
   }
   return null;
@@ -1788,7 +1791,7 @@ sampleplayer.getProtocolFunction_ = function(mediaInformation) {
  * @return {boolean} whether the media can be preloaded.
  * @private
  */
-sampleplayer.supportsPreload_ = function(media) {
+sampleplayer.supportsPreload_ = function (media) {
   return sampleplayer.getProtocolFunction_(media) != null;
 };
 
@@ -1801,7 +1804,7 @@ sampleplayer.supportsPreload_ = function(media) {
  * @return {boolean} whether the media can be previewed.
  * @private
  */
-sampleplayer.canDisplayPreview_ = function(media) {
+sampleplayer.canDisplayPreview_ = function (media) {
   var contentId = media.contentId || '';
   var contentUrlPath = sampleplayer.getPath_(contentId);
   if (sampleplayer.getExtension_(contentUrlPath) === 'mp4') {
@@ -1824,7 +1827,7 @@ sampleplayer.canDisplayPreview_ = function(media) {
  * @return {sampleplayer.Type} The player type.
  * @private
  */
-sampleplayer.getType_ = function(media) {
+sampleplayer.getType_ = function (media) {
   var contentId = media.contentId || '';
   var contentType = media.contentType || '';
   var contentUrlPath = sampleplayer.getPath_(contentId);
@@ -1870,7 +1873,7 @@ sampleplayer.getType_ = function(media) {
  * @return {string} the time (in HH:MM:SS)
  * @private
  */
-sampleplayer.formatDuration_ = function(dur) {
+sampleplayer.formatDuration_ = function (dur) {
   dur = Math.floor(dur);
   function digit(n) { return ('00' + Math.round(n)).slice(-2); }
   var hr = Math.floor(dur / 3600);
@@ -1896,9 +1899,9 @@ sampleplayer.formatDuration_ = function(dur) {
  *     window.clearTimeout().
  * @private
  */
-sampleplayer.addClassWithTimeout_ = function(element, className, timeout) {
+sampleplayer.addClassWithTimeout_ = function (element, className, timeout) {
   element.classList.add(className);
-  return setTimeout(function() {
+  return setTimeout(function () {
     element.classList.remove(className);
   }, timeout);
 };
@@ -1913,12 +1916,12 @@ sampleplayer.addClassWithTimeout_ = function(element, className, timeout) {
  * @param {function()} something The function that does something.
  * @private
  */
-sampleplayer.transition_ = function(element, time, something) {
+sampleplayer.transition_ = function (element, time, something) {
   if (time <= 0 || sampleplayer.isCastForAudioDevice_()) {
     // No transitions supported for Cast for Audio devices
     something();
   } else {
-    sampleplayer.fadeOut_(element, time / 2.0, function() {
+    sampleplayer.fadeOut_(element, time / 2.0, function () {
       something();
       sampleplayer.fadeIn_(element, time / 2.0);
     });
@@ -1933,7 +1936,7 @@ sampleplayer.transition_ = function(element, time, something) {
  * @param {function()} doneFunc The function to call when done.
  * @private
  */
-sampleplayer.preload_ = function(media, doneFunc) {
+sampleplayer.preload_ = function (media, doneFunc) {
   if (sampleplayer.isCastForAudioDevice_()) {
     // No preloading for Cast for Audio devices
     doneFunc();
@@ -1944,9 +1947,9 @@ sampleplayer.preload_ = function(media, doneFunc) {
   var counter = 0;
   var images = [];
   function imageLoaded() {
-      if (++counter === imagesToPreload.length) {
-        doneFunc();
-      }
+    if (++counter === imagesToPreload.length) {
+      doneFunc();
+    }
   }
 
   // try to preload image metadata
@@ -1960,10 +1963,10 @@ sampleplayer.preload_ = function(media, doneFunc) {
     for (var i = 0; i < imagesToPreload.length; i++) {
       images[i] = new Image();
       images[i].src = imagesToPreload[i];
-      images[i].onload = function() {
+      images[i].onload = function () {
         imageLoaded();
       };
-      images[i].onerror = function() {
+      images[i].onerror = function () {
         imageLoaded();
       };
     }
@@ -1979,7 +1982,7 @@ sampleplayer.preload_ = function(media, doneFunc) {
  * @param {function()=} opt_doneFunc The function to call when complete.
  * @private
  */
-sampleplayer.fadeIn_ = function(element, time, opt_doneFunc) {
+sampleplayer.fadeIn_ = function (element, time, opt_doneFunc) {
   sampleplayer.fadeTo_(element, '', time, opt_doneFunc);
 };
 
@@ -1992,7 +1995,7 @@ sampleplayer.fadeIn_ = function(element, time, opt_doneFunc) {
  * @param {function()=} opt_doneFunc The function to call when complete.
  * @private
  */
-sampleplayer.fadeOut_ = function(element, time, opt_doneFunc) {
+sampleplayer.fadeOut_ = function (element, time, opt_doneFunc) {
   sampleplayer.fadeTo_(element, 0, time, opt_doneFunc);
 };
 
@@ -2007,10 +2010,10 @@ sampleplayer.fadeOut_ = function(element, time, opt_doneFunc) {
  * @param {function()=} opt_doneFunc The function to call when complete.
  * @private
  */
-sampleplayer.fadeTo_ = function(element, opacity, time, opt_doneFunc) {
+sampleplayer.fadeTo_ = function (element, opacity, time, opt_doneFunc) {
   var self = this;
   var id = Date.now();
-  var listener = function() {
+  var listener = function () {
     element.style.webkitTransition = '';
     element.removeEventListener('webkitTransitionEnd', listener, false);
     if (opt_doneFunc) {
@@ -2030,7 +2033,7 @@ sampleplayer.fadeTo_ = function(element, opacity, time, opt_doneFunc) {
  * @return {string} the extension or "" if none
  * @private
  */
-sampleplayer.getExtension_ = function(url) {
+sampleplayer.getExtension_ = function (url) {
   var parts = url.split('.');
   // Handle files with no extensions and hidden files with no extension
   if (parts.length === 1 || (parts[0] === '' && parts.length === 2)) {
@@ -2048,7 +2051,7 @@ sampleplayer.getExtension_ = function(url) {
  * @return {string} The application state.
  * @private
  */
-sampleplayer.getApplicationState_ = function(opt_media) {
+sampleplayer.getApplicationState_ = function (opt_media) {
   if (opt_media && opt_media.metadata && opt_media.metadata.title) {
     return 'Now Casting: ' + opt_media.metadata.title;
   } else if (opt_media) {
@@ -2066,7 +2069,7 @@ sampleplayer.getApplicationState_ = function(opt_media) {
  * @return {string} The URL path.
  * @private
  */
-sampleplayer.getPath_ = function(url) {
+sampleplayer.getPath_ = function (url) {
   var href = document.createElement('a');
   href.href = url;
   return href.pathname || '';
@@ -2079,7 +2082,7 @@ sampleplayer.getPath_ = function(url) {
  * @param {string} message to log
  * @private
  */
-sampleplayer.CastPlayer.prototype.log_ = function(message) {
+sampleplayer.CastPlayer.prototype.log_ = function (message) {
   if (this.debug_ && message) {
     console.log(message);
   }
@@ -2093,7 +2096,7 @@ sampleplayer.CastPlayer.prototype.log_ = function(message) {
  * @param {string=} opt_text The text.
  * @private
  */
-sampleplayer.setInnerText_ = function(element, opt_text) {
+sampleplayer.setInnerText_ = function (element, opt_text) {
   if (!element) {
     return;
   }
@@ -2108,12 +2111,12 @@ sampleplayer.setInnerText_ = function(element, opt_text) {
  * @param {string=} opt_url The image url.
  * @private
  */
-sampleplayer.setBackgroundImage_ = function(element, opt_url) {
+sampleplayer.setBackgroundImage_ = function (element, opt_url) {
   if (!element) {
     return;
   }
   element.style.backgroundImage =
-      (opt_url ? 'url("' + opt_url.replace(/"/g, '\\"') + '")' : 'none');
+    (opt_url ? 'url("' + opt_url.replace(/"/g, '\\"') + '")' : 'none');
   element.style.display = (opt_url ? '' : 'none');
 };
 
@@ -2124,7 +2127,7 @@ sampleplayer.setBackgroundImage_ = function(element, opt_url) {
  * @return {boolean} Whether the device is a Cast for Audio device.
  * @private
  */
-sampleplayer.isCastForAudioDevice_ = function() {
+sampleplayer.isCastForAudioDevice_ = function () {
   var receiverManager = window.cast.receiver.CastReceiverManager.getInstance();
   if (receiverManager) {
     var deviceCapabilities = receiverManager.getDeviceCapabilities();
