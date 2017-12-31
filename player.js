@@ -452,7 +452,7 @@ sampleplayer.ENABLE_DEBUG_ = true;
  *
  * #@const @private {boolean}
  */
-sampleplayer.DISABLE_DEBUG_ = false;
+sampleplayer.DISABLE_DEBUG_ = true;
 
 
 /**
