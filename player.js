@@ -1710,7 +1710,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           var src = self.mediaElement_.src
           self.mediaElement_.pause();
           self.mediaElement_.src = '';
-          self.mediaElement_.load();
+          // self.mediaElement_.load();
           self.mediaElement_.style.display = 'none';
           self.mediaElement_2.src = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
           self.mediaElement_2.style.display = 'block';
@@ -1723,7 +1723,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
               sampleplayer.CastPlayer.prototype.change = true;
               self.mediaElement_2.pause();
               self.mediaElement_2.src = '';
-              self.mediaElement_2.load()
+              // self.mediaElement_2.load()
               self.mediaElement_2.style.display = 'none';
               self.mediaElement_.src = src;
               self.mediaElement_.style.display = 'block';
