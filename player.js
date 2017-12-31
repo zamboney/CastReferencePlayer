@@ -1355,6 +1355,7 @@ sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
+  var self = this;
   this.log_('onPlaying');
   this.cancelDeferredPlay_('media is already playing');
   var isAudio = this.type_ == sampleplayer.Type.AUDIO;
