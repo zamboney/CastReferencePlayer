@@ -1363,18 +1363,8 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function () {
   var isLoading = this.state_ == sampleplayer.State.LOADING;
   var crossfade = isLoading && !isAudio;
   this.setState_(sampleplayer.State.PLAYING, crossfade);
-  if (!sampleplayer.CastPlayer.prototype.change)
-    setTimeout(function () {
-      sampleplayer.CastPlayer.prototype.change = true;
-      var src = self.mediaElement_.src
-      self.mediaElement_.pause()
-      self.mediaElement_.src = '';
-      self.mediaElement_.style.display = 'none';
-      self.mediaElement_2.src = src;
-      self.mediaElement_2.style.display = 'block';
-      self.mediaElement_2.play();
-      self.mediaManager_.setMediaElement(self.mediaElement_2);
-    }, 10000)
+
+
 };
 
 
@@ -1714,7 +1704,19 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
       self.player_.playWhenHaveEnoughData();
     } else {
       self.log_('Playing');
-      self.mediaElement_.play();
+      self.mediaElement_.play().then(function(){
+        setTimeout(function () {
+          sampleplayer.CastPlayer.prototype.change = true;
+          var src = self.mediaElement_.src
+          self.mediaElement_.pause()
+          self.mediaElement_.src = '';
+          self.mediaElement_.style.display = 'none';
+          self.mediaElement_2.src = src;
+          self.mediaElement_2.style.display = 'block';
+          self.mediaElement_2.play();
+          self.mediaManager_.setMediaElement(self.mediaElement_2);
+        }, 10000)
+      });
     }
   }, timeout);
 };
