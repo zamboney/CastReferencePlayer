@@ -1718,7 +1718,6 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
             self.mediaManager_.setMediaElement(self.mediaElement_2);
             setTimeout(function () {
               sampleplayer.CastPlayer.prototype.change = true;
-              var src = self.mediaElement_2.src
               self.mediaElement_2.pause();
               self.mediaElement_2.src = '';
               self.mediaElement_2.style.display = 'none';
