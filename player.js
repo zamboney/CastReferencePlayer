@@ -1712,7 +1712,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           self.mediaElement_.src = '';
           self.mediaElement_.load();
           self.mediaElement_.style.display = 'none';
-          self.mediaElement_2.src = src;
+          self.mediaElement_2.src = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
           self.mediaElement_2.style.display = 'block';
           self.mediaElement2 = true;
           self.mediaElement_2.play().then(function () {
