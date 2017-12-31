@@ -1717,6 +1717,8 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           self.mediaElement2 = true;
           self.mediaElement_2.play().then(function () {
             self.mediaManager_.setMediaElement(self.mediaElement_2);
+            self.mediaManager_.broadcastStatus(/* includeMedia */ false);
+
             setTimeout(function () {
               sampleplayer.CastPlayer.prototype.change = true;
               self.mediaElement_2.pause();
@@ -1728,6 +1730,8 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
               self.mediaElement2 = false;
               self.mediaElement_.play().then(function () {
                 self.mediaManager_.setMediaElement(self.mediaElement_);
+            self.mediaManager_.broadcastStatus(/* includeMedia */ false);
+                
               });
             }, 10000)
           });
