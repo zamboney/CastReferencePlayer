@@ -1443,7 +1443,7 @@ sampleplayer.CastPlayer.prototype.onStop_ = function (event) {
 sampleplayer.CastPlayer.prototype.onEnded_ = function () {
   this.log_('onEnded');
   // this.setState_(sampleplayer.State.IDLE, true);
-  this.hidePreviewMode_();
+  // this.hidePreviewMode_();
 };
 
 
