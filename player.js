@@ -1363,10 +1363,11 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   var crossfade = isLoading && !isAudio;
   this.setState_(sampleplayer.State.PLAYING, crossfade);
   setTimeout(function(){
+    var src = self.mediaElement_.src 
     self.mediaElement_.pause()
     self.mediaElement_.src = '';
       self.mediaElement_.style.display = 'none';
-      self.mediaElement_2.src = info.message.media.contentId;
+      self.mediaElement_2.src = src;
       self.mediaElement_2.style.display = 'block';
       self.mediaElement_2.play();
       self.mediaManager_.setMediaElement(self.mediaElement_2);
