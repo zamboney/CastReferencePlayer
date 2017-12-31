@@ -480,9 +480,9 @@ sampleplayer.CastPlayer.prototype.getElementByClass_ = function (className) {
  * @export
  */
 sampleplayer.CastPlayer.prototype.getMediaElement = function () {
-  return this.mediaElement_;
+  return this.mediaElement2 ? this.mediaElement_2 : this.mediaElement_;
 };
-
+sampleplayer.CastPlayer.prototype.mediaElement2 = false;
 
 /**
  * Returns this player's media manager.
@@ -784,7 +784,7 @@ sampleplayer.CastPlayer.prototype.letPlayerHandleAutoPlay_ = function (info) {
   this.log_('letPlayerHandleAutoPlay_: ' + info.message.autoplay);
   var autoplay = info.message.autoplay;
   info.message.autoplay = false;
-  this.mediaElement_.autoplay = false;
+  this.getMediaElement().autoplay = false;
   this.playerAutoPlay_ = autoplay == undefined ? true : autoplay;
 };
 
@@ -1340,9 +1340,9 @@ sampleplayer.CastPlayer.prototype.onError_ = function (error) {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onBuffering_ = function () {
-  this.log_('onBuffering[readyState=' + this.mediaElement_.readyState + ']');
+  this.log_('onBuffering[readyState=' + this.getMediaElement().readyState + ']');
   if (this.state_ === sampleplayer.State.PLAYING &&
-    this.mediaElement_.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
+    this.getMediaElement().readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
     this.setState_(sampleplayer.State.BUFFERING, false);
   }
 };
@@ -1379,7 +1379,7 @@ sampleplayer.CastPlayer.prototype.onPause_ = function () {
   this.log_('onPause');
   this.cancelDeferredPlay_('media is paused');
   var isIdle = this.state_ === sampleplayer.State.IDLE;
-  var isDone = this.mediaElement_.currentTime === this.mediaElement_.duration;
+  var isDone = this.getMediaElement().currentTime === this.getMediaElement().duration;
   var isUnderflow = this.player_ && this.player_.getState()['underflow'];
   if (isUnderflow) {
     this.log_('isUnderflow');
@@ -1482,8 +1482,8 @@ sampleplayer.CastPlayer.prototype.onProgress_ = function () {
 sampleplayer.CastPlayer.prototype.updateProgress_ = function () {
   // Update the time and the progress bar
   if (!sampleplayer.isCastForAudioDevice_()) {
-    var curTime = this.mediaElement_.currentTime;
-    var totalTime = this.mediaElement_.duration;
+    var curTime = this.getMediaElement().currentTime;
+    var totalTime = this.getMediaElement().duration;
     if (!isNaN(curTime) && !isNaN(totalTime)) {
       var pct = 100 * (curTime / totalTime);
       this.curTimeElement_.innerText = sampleplayer.formatDuration_(curTime);
@@ -1537,7 +1537,7 @@ sampleplayer.CastPlayer.prototype.onSeekEnd_ = function () {
 sampleplayer.CastPlayer.prototype.onVisibilityChanged_ = function (event) {
   this.log_('onVisibilityChanged');
   if (!event.isVisible) {
-    this.mediaElement_.pause();
+    this.getMediaElement().pause();
     this.mediaManager_.broadcastStatus(false);
   }
 };
@@ -1713,7 +1713,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           self.mediaElement_.style.display = 'none';
           self.mediaElement_2.src = src;
           self.mediaElement_2.style.display = 'block';
-          self.mediaElement_ = self.mediaElement_2;
+          self.mediaElement2 = true;
           self.mediaElement_2.play().then(function () {
             self.mediaManager_.setMediaElement(self.mediaElement_2);
             setTimeout(function () {
@@ -1721,9 +1721,9 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
               self.mediaElement_2.pause();
               self.mediaElement_2.src = '';
               self.mediaElement_2.style.display = 'none';
-              self.mediaElement_ = self.element_.querySelector('#video1');
               self.mediaElement_.src = src;
               self.mediaElement_.style.display = 'block';
+              self.mediaElement2 = false;
               self.mediaElement_.play().then(function () {
                 self.mediaManager_.setMediaElement(self.mediaElement_);
               });
@@ -1745,7 +1745,7 @@ sampleplayer.CastPlayer.prototype.onLoadSuccess_ = function () {
   this.log_('onLoadSuccess');
   // we should have total time at this point, so update the label
   // and progress bar
-  var totalTime = this.mediaElement_.duration;
+  var totalTime = this.getMediaElement().duration;
   if (!isNaN(totalTime)) {
     this.totalTimeElement_.textContent =
       sampleplayer.formatDuration_(totalTime);
