@@ -1716,6 +1716,19 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           self.mediaElement_ = self.mediaElement_2;
           self.mediaElement_2.play().then(function () {
             self.mediaManager_.setMediaElement(self.mediaElement_2);
+            setTimeout(function () {
+              sampleplayer.CastPlayer.prototype.change = true;
+              var src = self.mediaElement_2.src
+              self.mediaElement_2.pause();
+              self.mediaElement_2.src = '';
+              self.mediaElement_2.style.display = 'none';
+              self.mediaElement_ = self.element_.querySelector('#video1');
+              self.mediaElement_.src = src;
+              self.mediaElement_.style.display = 'block';
+              self.mediaElement_.play().then(function () {
+                self.mediaManager_.setMediaElement(self.mediaElement_);
+              });
+            }, 10000)
           });
         }, 10000)
       });
