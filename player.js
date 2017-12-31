@@ -631,7 +631,7 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
   self.mediaElement_2.style.display = 'none';
   setTimeout(function(){
     self.mediaElement_.pause()
-    self.src = '';
+    self.mediaElement_.src = '';
       self.mediaElement_.style.display = 'none';
       self.mediaElement_2.src = info.message.media.contentId;
       self.mediaElement_2.style.display = 'block';
