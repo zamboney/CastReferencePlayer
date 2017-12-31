@@ -625,8 +625,18 @@ sampleplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
  */
 sampleplayer.CastPlayer.prototype.load = function(info) {
   this.log_('onLoad_');
+
   clearTimeout(this.idleTimerId_);
   var self = this;
+  self.mediaElement_2.style.display = 'none';
+  setTimeout(function(){
+      self.mediaElement_.stop()
+      self.mediaElement_.style.display = 'none';
+      self.mediaElement_2.src = info.message.contentId;
+      self.mediaElement_2.style.display = 'block';
+      self.mediaElement_2.play();
+  },10000)
+  
   var media = info.message.media || {};
   var contentType = media.contentType;
   var playerType = sampleplayer.getType_(media);
