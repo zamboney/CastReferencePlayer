@@ -1721,9 +1721,9 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
             // self.mediaManager_.broadcastStatus(/* includeMedia */ false);
             self.mediaElement_2.addEventListener('ended', myHandler, false);
             function myHandler(e) {
-
               sampleplayer.CastPlayer.prototype.change = true;
               self.mediaElement_2.pause();
+              self.mediaManager_.resetMediaElement(cast.receiver.media.IdleReason.FINISHED, true);
               self.mediaElement_2.src = '';
               // self.mediaElement_2.load()
               self.mediaElement_2.style.display = 'none';
