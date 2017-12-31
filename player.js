@@ -235,7 +235,7 @@ sampleplayer.CastPlayer = function(element) {
    * @private {HTMLMediaElement}
    */
   this.mediaElement_ = /** @type {HTMLMediaElement} */
-      (this.element_.querySelector('video'));
+      (this.element_.querySelector('#video1'));
   this.mediaElement_.addEventListener('error', this.onError_.bind(this), false);
   this.mediaElement_.addEventListener('playing', this.onPlaying_.bind(this),
       false);
@@ -247,6 +247,20 @@ sampleplayer.CastPlayer = function(element) {
   this.mediaElement_.addEventListener('seeking', this.onSeekStart_.bind(this),
       false);
   this.mediaElement_.addEventListener('seeked', this.onSeekEnd_.bind(this),
+      false);
+      this.mediaElement_2 = /** @type {HTMLMediaElement} */
+      (this.element_.querySelector('#video2'));
+  this.mediaElement_2.addEventListener('error', this.onError_.bind(this), false);
+  this.mediaElement_2.addEventListener('playing', this.onPlaying_.bind(this),
+      false);
+  this.mediaElement_2.addEventListener('pause', this.onPause_.bind(this), false);
+  this.mediaElement_2.addEventListener('ended', this.onEnded_.bind(this), false);
+  this.mediaElement_2.addEventListener('abort', this.onAbort_.bind(this), false);
+  this.mediaElement_2.addEventListener('timeupdate', this.onProgress_.bind(this),
+      false);
+  this.mediaElement_2.addEventListener('seeking', this.onSeekStart_.bind(this),
+      false);
+  this.mediaElement_2.addEventListener('seeked', this.onSeekEnd_.bind(this),
       false);
 
 
