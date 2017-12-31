@@ -1730,9 +1730,9 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
               self.mediaElement_.src = src;
               self.mediaElement_.style.display = 'block';
               self.mediaElement2 = false;
-              this.setState_(sampleplayer.State.BUFFERING, true);
+              self.setState_(sampleplayer.State.BUFFERING, true);
               self.mediaElement_.play().then(function () {
-              this.setState_(sampleplayer.State.PLAYING, true);
+                self.setState_(sampleplayer.State.PLAYING, true);
                 
                 self.mediaManager_.setMediaElement(self.mediaElement_);
                 // self.mediaManager_.broadcastStatus(/* includeMedia */ false);
