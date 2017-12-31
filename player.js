@@ -1718,7 +1718,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           self.mediaElement2 = true;
           self.mediaElement_2.play().then(function () {
             self.mediaManager_.setMediaElement(self.mediaElement_2);
-            self.mediaManager_.broadcastStatus(/* includeMedia */ false);
+            // self.mediaManager_.broadcastStatus(/* includeMedia */ false);
             self.mediaElement_2.addEventListener('ended', myHandler, false);
             function myHandler(e) {
 
@@ -1732,7 +1732,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
               self.mediaElement2 = false;
               self.mediaElement_.play().then(function () {
                 self.mediaManager_.setMediaElement(self.mediaElement_);
-                self.mediaManager_.broadcastStatus(/* includeMedia */ false);
+                // self.mediaManager_.broadcastStatus(/* includeMedia */ false);
 
               });
 
