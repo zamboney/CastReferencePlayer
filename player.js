@@ -1327,8 +1327,8 @@ sampleplayer.CastPlayer.prototype.onError_ = function (error) {
   var self = this;
   sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
     function () {
-      self.setState_(sampleplayer.State.IDLE, true);
-      self.onErrorOrig_(error);
+      // self.setState_(sampleplayer.State.IDLE, true);
+      // self.onErrorOrig_(error);
     });
 };
 
