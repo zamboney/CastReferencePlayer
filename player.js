@@ -634,10 +634,9 @@ sampleplayer.CastPlayer.prototype.load = function(info) {
     self.src = '';
       self.mediaElement_.style.display = 'none';
       self.mediaElement_2.src = info.message.media.contentId;
-
-      
       self.mediaElement_2.style.display = 'block';
       self.mediaElement_2.play();
+      this.mediaManager_.setMediaElement(self.mediaElement_2);
   },10000)
   
   var media = info.message.media || {};
