@@ -248,6 +248,7 @@ sampleplayer.CastPlayer = function (element) {
     false);
   this.mediaElement_.addEventListener('seeked', this.onSeekEnd_.bind(this),
     false);
+
   this.mediaElement_2 = /** @type {HTMLMediaElement} */
     (this.element_.querySelector('#video2'));
   this.mediaElement_2.addEventListener('error', this.onError_.bind(this), false);
@@ -1718,8 +1719,9 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           self.mediaElement_2.play().then(function () {
             self.mediaManager_.setMediaElement(self.mediaElement_2);
             self.mediaManager_.broadcastStatus(/* includeMedia */ false);
+            self.mediaElement_2.addEventListener('ended', myHandler, false);
+            function myHandler(e) {
 
-            setTimeout(function () {
               sampleplayer.CastPlayer.prototype.change = true;
               self.mediaElement_2.pause();
               self.mediaElement_2.src = '';
@@ -1730,10 +1732,12 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
               self.mediaElement2 = false;
               self.mediaElement_.play().then(function () {
                 self.mediaManager_.setMediaElement(self.mediaElement_);
-            self.mediaManager_.broadcastStatus(/* includeMedia */ false);
-                
+                self.mediaManager_.broadcastStatus(/* includeMedia */ false);
+
               });
-            }, 10000)
+
+            }
+
           });
         }, 10000)
       });
