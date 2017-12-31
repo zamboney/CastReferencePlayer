@@ -1713,6 +1713,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           self.mediaElement_.style.display = 'none';
           self.mediaElement_2.src = src;
           self.mediaElement_2.style.display = 'block';
+          self.mediaElement_ = self.mediaElement_2;
           self.mediaElement_2.play().then(function () {
             self.mediaManager_.setMediaElement(self.mediaElement_2);
           });
