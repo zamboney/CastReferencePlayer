@@ -1714,7 +1714,7 @@ sampleplayer.CastPlayer.prototype.deferPlay_ = function (timeout) {
           self.mediaElement_2.src = src;
           self.mediaElement_2.style.display = 'block';
           self.mediaElement_2.play().then(function () {
-            slf.mediaManager_.setMediaElement(self.mediaElement_2);
+            self.mediaManager_.setMediaElement(self.mediaElement_2);
           });
         }, 10000)
       });
